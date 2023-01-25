@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="MediatR" Version="11.0.0" />
+        <PackageReference Include="mediatr.extensions.microsoft.dependencyinjection" Version="11.0.0" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.13" />
+        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.15-prerelease-3" />
+        <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
+        <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
+        <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.23" />
+        <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
+        <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.13" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Application\SFA.DAS.Employer.Profiles.Application.csproj" />
+      <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Domain\SFA.DAS.Employer.Profiles.Domain.csproj" />
+      <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Infrastructure\SFA.DAS.Employer.Profiles.Infrastructure.csproj" />
+    </ItemGroup>
+</Project>
