@@ -8,7 +8,13 @@ using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.Employer.Profiles.Web.AppStart;
 
-
+public class NoClaimsHandler : ICustomClaims
+{
+    public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext tokenValidatedContext)
+    {
+        return new List<Claim>();
+    }
+}
 public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
 {
     private readonly IEmployerAccountService _accountsSvc;

@@ -17,15 +17,14 @@ builder.Services.Configure<EmployerProfilesWebConfiguration>(rootConfiguration.G
 builder.Services.AddSingleton(cfg => cfg.GetService<IOptions<EmployerProfilesWebConfiguration>>().Value);
 
 builder.Services.AddServiceRegistration();
-
-builder.Services.AddAndConfigureGovUkAuthentication(rootConfiguration,
-    $"{typeof(Program).Assembly.GetName().Name}.Auth",
-    typeof(EmployerAccountPostAuthenticationClaimsHandler));
+builder.Services.AddAuthenticationServices();
 
 builder.Services.AddLogging();
 builder.Services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
+
+builder.Services.AddAndConfigureGovUkAuthentication(rootConfiguration, $"{typeof(Program).Assembly.GetName().Name}.Auth", typeof(NoClaimsHandler));
             
-builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, "",rootConfiguration["ResourceEnvironmentName"]);
+builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, "1",rootConfiguration["ResourceEnvironmentName"]);
             
 builder.Services.Configure<RouteOptions>(options =>
 {

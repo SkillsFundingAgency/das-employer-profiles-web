@@ -33,6 +33,7 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddConfigurationOptions(configuration);
         serviceCollection.AddDistributedMemoryCache();
         serviceCollection.AddServiceRegistration();
+        serviceCollection.AddAuthenticationServices();
         
     }
     
