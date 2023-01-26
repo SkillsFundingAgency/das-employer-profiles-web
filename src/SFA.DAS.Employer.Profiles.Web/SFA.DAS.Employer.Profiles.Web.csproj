@@ -18,7 +18,7 @@
         <PackageReference Include="StackExchange.Redis" Version="2.6.90" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.23.1" />
         <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.1.13" />
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="6.0.5" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Application\SFA.DAS.Employer.Profiles.Application.csproj" />
