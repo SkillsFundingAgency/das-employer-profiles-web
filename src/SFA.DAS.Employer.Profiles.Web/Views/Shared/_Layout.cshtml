@@ -12,7 +12,7 @@
 <html lang="en" class="govuk-template">
     <head>
         <meta charset="utf-8" />
-        <title>@(ViewData["Title"] ?? "GOV.UK - The best place to find government services and information")</title>
+        <title>@(ViewData["Title"] ?? "Manage apprenticeships")</title>
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="theme-color" content="#0b0c0c" />
 
@@ -25,7 +25,6 @@
 
         <!--[if !IE 8]><!-->
         <link href="css/main.css" rel="stylesheet" />
-        <link href="/css/app.css" rel="stylesheet" no-cdn />
         <!--<![endif]-->
 
         <meta property="og:image" content="assets/images/govuk-opengraph-image.png">
@@ -51,19 +50,17 @@
             <partial name="_Menu" model="@accountId">
             </partial>
         </partial>
-            <div class="das-section--dashboard">
-                <div class="govuk-width-container">
-                    @RenderSection("breadcrumb", required: false)
-                    <main class="govuk-main-wrapper" id="main-content" role="main">
-                        @RenderBody()
-                    </main>
-                </div>
-            </div>
+
+        <div class="govuk-width-container">
+            @RenderSection("breadcrumb", required: false)
+            <main class="govuk-main-wrapper" id="main-content" role="main">
+                @RenderBody()
+            </main>
+        </div>
+
         @* ReSharper disable once Mvc.PartialViewNotResolved *@
         <partial name="_Footer" model="@footerModel"/>
         <script src="/libs/govuk-frontend/all.js"></script>
-        <script src="libs/jquery/jquery.min.js"></script>
-        <script src="/js/app.js" no-cdn></script>
         <script>
             window.GOVUKFrontend.initAll();
         </script>
