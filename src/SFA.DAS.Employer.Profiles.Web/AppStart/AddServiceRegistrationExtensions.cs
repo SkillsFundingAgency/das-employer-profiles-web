@@ -10,14 +10,14 @@ public static class AddServiceRegistrationExtension
 {
     public static void AddServiceRegistration(this IServiceCollection services)
     {
-        services.AddTransient<IEmployerAccountService, EmployerAccountService>();
+        //services.AddTransient<IEmployerAccountService, EmployerAccountService>();
         
-        services.AddHttpClient<IApiClient, ApiClient>();
+        //services.AddHttpClient<IApiClient, ApiClient>();
     }
 
     public static void AddAuthenticationServices(this IServiceCollection services)
     {
-        services.AddTransient<ICustomClaims, EmployerAccountPostAuthenticationClaimsHandler>();
+        //services.AddTransient<ICustomClaims, EmployerAccountPostAuthenticationClaimsHandler>();
         
         services.AddAuthorization(options =>
         {
