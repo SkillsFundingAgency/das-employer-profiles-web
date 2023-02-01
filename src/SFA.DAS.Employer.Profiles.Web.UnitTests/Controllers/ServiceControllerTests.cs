@@ -14,7 +14,7 @@ public class ServiceControllerTests
     [Test, MoqAutoData]
     public void Then_The_View_Is_Returned_With_Model(
         [Frozen] Mock<IConfiguration> configuration, 
-        [Greedy]ServiceController controller)
+        [Greedy] ServiceController controller)
     {
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
 
@@ -22,6 +22,6 @@ public class ServiceControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as SignedOutViewModel;
-        actualModel?.ServiceLink.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk/service/index");
+        Assert.AreEqual("https://accounts.test-eas.apprenticeships.education.gov.uk/service/index",actualModel?.ServiceLink);
     }
 }

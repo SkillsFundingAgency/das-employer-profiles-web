@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
+using SFA.DAS.Employer.Profiles.Web.Models;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
@@ -33,6 +34,6 @@ public class ServiceController : Controller
     [HttpGet]
     public IActionResult SignedOut()
     {
-        return View("SignedOut",@"https://localhost:/somewhere");
+        return View("SignedOut", new SignedOutViewModel(_configuration["ResourceEnvironmentName"]));
     }
 }
