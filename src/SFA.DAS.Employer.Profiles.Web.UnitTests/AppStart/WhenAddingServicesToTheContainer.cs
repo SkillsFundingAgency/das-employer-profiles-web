@@ -46,7 +46,7 @@ public class WhenAddingServicesToTheContainer
             {
                 new KeyValuePair<string, string>("EmployerProfilesWebConfiguration:BaseUrl", "https://test.com/"),
                 new KeyValuePair<string, string>("EmployerProfilesWebConfiguration:Key", "123edc"),
-                new KeyValuePair<string, string>("Environment", "test"),
+                new KeyValuePair<string, string>("EnvironmentName", "test"),
             }
         };
 
