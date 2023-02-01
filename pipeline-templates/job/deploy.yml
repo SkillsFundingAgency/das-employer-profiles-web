@@ -34,7 +34,7 @@ jobs:
           parameters:
             EnvironmentName: $(EnvironmentName)
             ServiceConnection: ${{ parameters.ServiceConnection }}
-            SourcePath: $(Pipeline.Workspace)/das-employer-config/Configuration/das-employer-profiles-web
+            SourcePath: $(Pipeline.Workspace)/das-employer-config/Configuration/das-employerprofiles-web
             StorageAccountName: $(ConfigurationStorageAccountName)
             StorageAccountResourceGroup: $(SharedEnvResourceGroup)
             TargetFileName: '*.schema.json'
