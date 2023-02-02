@@ -36,4 +36,10 @@ public class ServiceController : Controller
     {
         return View("SignedOut", new SignedOutViewModel(_configuration["ResourceEnvironmentName"]));
     }
+
+    [Route("Account-Unavailable", Name = RouteNames.AccountUnavailable)]
+    public IActionResult AccountUnavailable()
+    {
+        return View("AccountUnavailable");
+    }
 }
