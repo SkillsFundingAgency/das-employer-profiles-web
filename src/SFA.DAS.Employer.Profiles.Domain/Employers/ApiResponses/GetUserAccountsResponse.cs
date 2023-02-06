@@ -16,4 +16,6 @@ public class EmployerIdentifier
     public string EmployerName { get; set; }
     [JsonPropertyName("Role")]
     public string Role { get; set; }
+    [JsonPropertyName("IsSuspended")]
+    public bool IsSuspended { get; set; }
 }
