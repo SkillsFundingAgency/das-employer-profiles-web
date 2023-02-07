@@ -7,10 +7,10 @@ using SFA.DAS.Employer.Shared.UI.Attributes;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
-[Route("[controller]")]
-[SetNavigationSection(NavigationSection.AccountsFinance)]
-[Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
-public class EmployerController : Controller
+[Route("accounts/{employerAccountId}/[controller]")]
+[SetNavigationSection(NavigationSection.AccountsHome)]
+[Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]
+public class UserController : Controller
 {
     [HttpGet]
     [Route("change-sign-in-details", Name = RouteNames.ChangeSignInDetails)]
