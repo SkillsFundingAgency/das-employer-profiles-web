@@ -10,5 +10,5 @@ public class SignedOutViewModel
         _environmentPart = environment.ToLower() == "prd" ? "manage-apprenticeships" : $"{environment.ToLower()}-eas.apprenticeships";
         _domainPart = environment.ToLower() == "prd" ?  "service" : "education";
     }
-    public string ServiceLink => $"https://accounts.{_environmentPart}.{_domainPart}.gov.uk/service/index";
+    public string ServiceLink => $"https://accounts.{_environmentPart}.{_domainPart}.gov.uk";
 }

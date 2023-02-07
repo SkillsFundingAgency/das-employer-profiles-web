@@ -22,6 +22,6 @@ public class ServiceControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as SignedOutViewModel;
-        Assert.AreEqual("https://accounts.test-eas.apprenticeships.education.gov.uk/service/index",actualModel?.ServiceLink);
+        Assert.AreEqual("https://accounts.test-eas.apprenticeships.education.gov.uk",actualModel?.ServiceLink);
     }
 }
