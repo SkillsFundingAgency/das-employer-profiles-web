@@ -25,4 +25,12 @@
       <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Domain\SFA.DAS.Employer.Profiles.Domain.csproj" />
       <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Infrastructure\SFA.DAS.Employer.Profiles.Infrastructure.csproj" />
     </ItemGroup>
+    <ItemGroup>
+        <Content Update="appsettings.json">
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </Content>
+        <Content Update="appsettings.Development.json">
+            <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+        </Content>
+    </ItemGroup>
 </Project>
