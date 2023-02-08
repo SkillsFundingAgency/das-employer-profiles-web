@@ -5,7 +5,6 @@ public class ChangeSignInDetailsViewModel
     private readonly string _integrationUrlPart = "";
     public ChangeSignInDetailsViewModel(string environment)
     {
-        
         if (!environment.Equals("prd", StringComparison.CurrentCultureIgnoreCase))
         {
             _integrationUrlPart = ".integration";
