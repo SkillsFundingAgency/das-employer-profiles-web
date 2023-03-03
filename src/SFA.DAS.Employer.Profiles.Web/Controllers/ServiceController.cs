@@ -39,9 +39,9 @@ public class ServiceController : Controller
     }
 
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
-    [Route("Account-Unavailable", Name = RouteNames.AccountUnavailable)]
+    [Route("account-unavailable", Name = RouteNames.AccountUnavailable)]
     public IActionResult AccountUnavailable()
     {
-        return View("AccountUnavailable");
+        return View();
     }
 }
