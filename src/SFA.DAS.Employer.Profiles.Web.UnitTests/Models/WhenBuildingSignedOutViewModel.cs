@@ -1,6 +1,4 @@
 using SFA.DAS.Employer.Profiles.Web.Models;
-using SFA.DAS.Employer.Shared.UI;
-using SFA.DAS.Employer.Shared.UI.Configuration;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Models;
 
@@ -17,6 +15,6 @@ public class WhenBuildingSignedOutViewModel
     {
         var model = new SignedOutViewModel(environment);
         
-        Assert.AreEqual($"https://accounts.{expectedUrlPart}.gov.uk/service/index", model.ServiceLink);
+        Assert.AreEqual($"https://accounts.{expectedUrlPart}.gov.uk", model.ServiceLink);
     }
 }

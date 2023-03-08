@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
 
@@ -35,5 +36,12 @@ public class ServiceController : Controller
     public IActionResult SignedOut()
     {
         return View("SignedOut", new SignedOutViewModel(_configuration["ResourceEnvironmentName"]));
+    }
+
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [Route("account-unavailable", Name = RouteNames.AccountUnavailable)]
+    public IActionResult AccountUnavailable()
+    {
+        return View();
     }
 }

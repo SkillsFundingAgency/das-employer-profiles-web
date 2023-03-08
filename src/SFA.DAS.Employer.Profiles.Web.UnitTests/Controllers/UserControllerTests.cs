@@ -9,19 +9,19 @@ using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Controllers;
 
-public class ServiceControllerTests
+public class UserControllerTests
 {
     [Test, MoqAutoData]
     public void Then_The_View_Is_Returned_With_Model(
         [Frozen] Mock<IConfiguration> configuration, 
-        [Greedy] ServiceController controller)
+        [Greedy] UserController controller)
     {
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
 
-        var actual = controller.SignedOut() as ViewResult;
+        var actual = controller.ChangeSignInDetails() as ViewResult;
 
         actual.Should().NotBeNull();
-        var actualModel = actual?.Model as SignedOutViewModel;
-        Assert.AreEqual("https://accounts.test-eas.apprenticeships.education.gov.uk",actualModel?.ServiceLink);
+        var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
+        Assert.AreEqual("https://home.integration.account.gov.uk/settings",actualModel?.SettingsLink);
     }
 }

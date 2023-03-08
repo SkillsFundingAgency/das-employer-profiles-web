@@ -1,3 +1,5 @@
+using FluentAssertions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Configuration.Memory;
@@ -5,15 +7,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Web.AppStart;
+using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.AppStart;
 
 public class WhenAddingServicesToTheContainer
 {
-    [Ignore("Re-enable once next part of account validation added")]
-    //[TestCase(typeof(IEmployerAccountService))]
-    //[TestCase(typeof(ICustomClaims))]
+    [TestCase(typeof(IEmployerAccountService))]
+    [TestCase(typeof(ICustomClaims))]
     public void Then_The_Dependencies_Are_Correctly_Resolved(Type toResolve)
     {
         var serviceCollection = new ServiceCollection();
@@ -24,6 +26,21 @@ public class WhenAddingServicesToTheContainer
             
         Assert.IsNotNull(type);
     }
+    
+    [Test]
+    public void Then_Resolves_Authorization_Handlers()
+    {
+        var serviceCollection = new ServiceCollection();
+        SetupServiceCollection(serviceCollection);
+        var provider = serviceCollection.BuildServiceProvider();
+            
+        var type = provider.GetServices(typeof(IAuthorizationHandler)).ToList();
+            
+        Assert.IsNotNull(type);
+        type.Count.Should().Be(2);
+        type.Should().ContainSingle(c => c.GetType() == typeof(EmployerAccountAuthorizationHandler));
+    }
+
 
     private static void SetupServiceCollection(ServiceCollection serviceCollection)
     {
