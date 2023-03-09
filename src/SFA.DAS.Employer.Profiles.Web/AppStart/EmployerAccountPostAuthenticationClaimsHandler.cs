@@ -29,7 +29,7 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
         var result = await _accountsSvc.GetUserAccounts(userId, email);
 
         //update the user information
-        var updatedUserInfo = await _accountsSvc.UpsertUserAccount(userId, new UpsertAccountRequest
+        await _accountsSvc.UpsertUserAccount(userId, new UpsertAccountRequest
         {
             Email = email, GovIdentifier = userId
         });
