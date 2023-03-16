@@ -11,7 +11,7 @@
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="6.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="6.0.13" />
-        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.28" />
+        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.38" />
         <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
         <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
         <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.29" />
