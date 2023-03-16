@@ -10,9 +10,12 @@ public class WhenConvertingFromApiResponseToEmployerUserAccounts
     [Test, AutoData]
     public void Then_The_Values_Are_Mapped(GetUserAccountsResponse source)
     {
+        source.IsSuspended = true;
+        
         var actual = (EmployerUserAccounts) source;
 
         actual.EmployerAccounts.Should().BeEquivalentTo(source.UserAccounts);
+        actual.IsSuspended.Should().Be(source.IsSuspended);
     }
 
     [Test]
@@ -21,5 +24,6 @@ public class WhenConvertingFromApiResponseToEmployerUserAccounts
         var actual = (EmployerUserAccounts) (GetUserAccountsResponse)null;
 
         actual.EmployerAccounts.Should().BeEmpty();
+        actual.IsSuspended.Should().BeFalse();
     }
 }
