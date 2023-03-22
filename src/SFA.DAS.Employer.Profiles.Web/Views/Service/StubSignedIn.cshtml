@@ -1,0 +1,24 @@
+@using System.Security.Claims
+@model SFA.DAS.Employer.Profiles.Web.Models.AccountStubViewModel
+<div class="govuk-grid-row"  id="estimate-start-transfer">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">
+            You've signed in
+        </h1>
+    </div>
+    <p>Id: @Model.Id</p>
+    <p>Email: @Model.Email</p>
+    <ul>
+    @foreach (var account in Model.Accounts)
+    {
+        <li>
+            <p>@account.AccountId</p>
+            <p>@account.Role</p>
+            <p>@account.EmployerName</p>
+        </li>
+    }
+    </ul>
+    
+   
+    
+</div>
