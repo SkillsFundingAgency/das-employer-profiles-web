@@ -9,8 +9,8 @@ using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
-using SFA.DAS.GovUK.Auth.Configuration;
 using SFA.DAS.GovUK.Auth.Models;
+using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
@@ -18,10 +18,12 @@ namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 public class ServiceController : Controller
 {
     private readonly IConfiguration _configuration;
+    private readonly IStubAuthenticationService _stubAuthenticationService;
 
-    public ServiceController(IConfiguration configuration)
+    public ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService)
     {
         _configuration = configuration;
+        _stubAuthenticationService = stubAuthenticationService;
     }
     [Route("signout", Name = RouteNames.SignOut)]
     public async Task<IActionResult> SignOut()
@@ -54,27 +56,22 @@ public class ServiceController : Controller
     [Route("account-details", Name = RouteNames.StubAccountDetailsGet)]
     public IActionResult AccountDetails()
     {
+        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        {
+            return NotFound();
+        }
         return View();
     }
     [HttpPost]
     [Route("account-details", Name = RouteNames.StubAccountDetailsPost)]
     public IActionResult AccountDetails(StubAuthUserDetails model)
     {
-        var authCookie = new CookieOptions
+        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
-            Expires = DateTimeOffset.UtcNow.AddMinutes(2),
-            Path = "/",
-            Domain = ".test-eas.apprenticeships.education.gov.uk"
-        };
-        Response.Cookies.Append(GovUkConstants.StubAuthCookieName,JsonConvert.SerializeObject(model),authCookie);
-        
-        var authCookie2 = new CookieOptions
-        {
-            Expires = DateTimeOffset.UtcNow.AddMinutes(2),
-            Path = "/",
-            Domain = "localhost"
-        };
-        Response.Cookies.Append($"{GovUkConstants.StubAuthCookieName}",JsonConvert.SerializeObject(model),authCookie2);
+            return NotFound();
+        }
+
+        _stubAuthenticationService.AddStubEmployerAuth(Response.Cookies, model);
         
         return RedirectToRoute(RouteNames.StubSignedIn);
     }
@@ -84,6 +81,10 @@ public class ServiceController : Controller
     [Route("Stub-Auth", Name = RouteNames.StubSignedIn)]
     public IActionResult StubSignedIn() 
     {
+        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        {
+            return NotFound();
+        }
         var viewModel = new AccountStubViewModel
         {
             Email = User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.Email))?.Value,
