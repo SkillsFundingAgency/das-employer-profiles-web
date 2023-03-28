@@ -1,11 +1,16 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
+using SFA.DAS.GovUK.Auth.Models;
+using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
@@ -13,10 +18,12 @@ namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 public class ServiceController : Controller
 {
     private readonly IConfiguration _configuration;
+    private readonly IStubAuthenticationService _stubAuthenticationService;
 
-    public ServiceController(IConfiguration configuration)
+    public ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService)
     {
         _configuration = configuration;
+        _stubAuthenticationService = stubAuthenticationService;
     }
     [Route("signout", Name = RouteNames.SignOut)]
     public async Task<IActionResult> SignOut()
@@ -43,5 +50,51 @@ public class ServiceController : Controller
     public IActionResult AccountUnavailable()
     {
         return View();
+    }
+    
+    [HttpGet]
+    [Route("account-details", Name = RouteNames.StubAccountDetailsGet)]
+    public IActionResult AccountDetails()
+    {
+        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        {
+            return NotFound();
+        }
+        return View();
+    }
+    [HttpPost]
+    [Route("account-details", Name = RouteNames.StubAccountDetailsPost)]
+    public IActionResult AccountDetails(StubAuthUserDetails model)
+    {
+        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        {
+            return NotFound();
+        }
+
+        _stubAuthenticationService.AddStubEmployerAuth(Response.Cookies, model);
+        
+        return RedirectToRoute(RouteNames.StubSignedIn);
+    }
+
+    [HttpGet]
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [Route("Stub-Auth", Name = RouteNames.StubSignedIn)]
+    public IActionResult StubSignedIn() 
+    {
+        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        {
+            return NotFound();
+        }
+        var viewModel = new AccountStubViewModel
+        {
+            Email = User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.Email))?.Value,
+            Id = User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.NameIdentifier))?.Value,
+            Accounts = JsonConvert.DeserializeObject<Dictionary<string,EmployerUserAccountItem>>(
+                User.Claims.FirstOrDefault(c=>c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value)
+                .Select(c=>c.Value)
+                .ToList()
+
+        };
+        return View(viewModel);
     }
 }

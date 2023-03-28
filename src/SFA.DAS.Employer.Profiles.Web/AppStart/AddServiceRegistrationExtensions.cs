@@ -4,6 +4,7 @@ using SFA.DAS.Employer.Profiles.Domain.OuterApi;
 using SFA.DAS.Employer.Profiles.Infrastructure.Api;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
+using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.Employer.Profiles.Web.AppStart;
@@ -36,6 +37,7 @@ public static class AddServiceRegistrationExtension
                     policy.RequireClaim(EmployerClaims.AccountsClaimsTypeIdentifier);
                     policy.Requirements.Add(new EmployerAccountRequirement());
                     policy.RequireAuthenticatedUser();
+                    policy.Requirements.Add(new AccountActiveRequirement());
                 });
         });
     }

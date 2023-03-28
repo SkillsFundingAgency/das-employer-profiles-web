@@ -18,6 +18,7 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
     }
     public async Task<IEnumerable<Claim>> GetClaims(TokenValidatedContext ctx)
     {
+        var claims = new List<Claim>();
         var userId = ctx.Principal.Claims
                 .First(c => c.Type.Equals(ClaimTypes.NameIdentifier))
                 .Value;
@@ -29,6 +30,13 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
 
         var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
         var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
-        return new List<Claim> {associatedAccountsClaim};
+
+        if (result.IsSuspended)
+        {
+            claims.Add(new Claim(ClaimTypes.AuthorizationDecision, "Suspended"));
+        }
+        claims.Add(associatedAccountsClaim);
+
+        return claims;
     }
 }

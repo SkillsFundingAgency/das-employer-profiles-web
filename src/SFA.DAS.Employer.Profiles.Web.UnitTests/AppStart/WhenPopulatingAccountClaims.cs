@@ -29,6 +29,7 @@ public class WhenPopulatingAccountClaims
         [Frozen] Mock<IOptions<EmployerProfilesWebConfiguration>> employerProfilesWebConfiguration,
         EmployerAccountPostAuthenticationClaimsHandler handler)
     {
+        accountData.IsSuspended = false;
         var tokenValidatedContext = ArrangeTokenValidatedContext(nameIdentifier, emailAddress);
         accountService.Setup(x => x.GetUserAccounts(nameIdentifier,emailAddress)).ReturnsAsync(accountData);
         
@@ -37,7 +38,28 @@ public class WhenPopulatingAccountClaims
         accountService.Verify(x=>x.GetUserAccounts(nameIdentifier,emailAddress), Times.Once);
         actual.Should().ContainSingle(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
         var actualClaimValue = actual.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
+        actual.FirstOrDefault(c => c.Type.Equals(ClaimTypes.AuthorizationDecision))?.Value?.Should().BeNullOrEmpty();
         JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
+    }
+
+    [Test, MoqAutoData]
+    public async Task Then_If_IsSuspended_Claim_Is_Marked_As_Suspended(
+        string nameIdentifier,
+        string emailAddress,
+        EmployerUserAccounts accountData,
+        [Frozen] Mock<IEmployerAccountService> accountService,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Frozen] Mock<IOptions<EmployerProfilesWebConfiguration>> employerProfilesWebConfiguration,
+        EmployerAccountPostAuthenticationClaimsHandler handler)
+    {
+        accountData.IsSuspended = true;
+        var tokenValidatedContext = ArrangeTokenValidatedContext(nameIdentifier, emailAddress);
+        accountService.Setup(x => x.GetUserAccounts(nameIdentifier,emailAddress)).ReturnsAsync(accountData);
+        
+        var actual = await handler.GetClaims(tokenValidatedContext);
+        
+        accountService.Verify(x=>x.GetUserAccounts(nameIdentifier,emailAddress), Times.Once);
+        actual.First(c => c.Type.Equals(ClaimTypes.AuthorizationDecision)).Value.Should().Be("Suspended");
     }
 
 
