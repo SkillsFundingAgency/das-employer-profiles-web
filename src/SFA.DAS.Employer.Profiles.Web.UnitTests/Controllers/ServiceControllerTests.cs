@@ -63,7 +63,7 @@ public class ServiceControllerTests
         var actual = controller.AccountDetails(model) as RedirectToRouteResult;
 
         actual.RouteName.Should().Be(RouteNames.StubSignedIn);
-        stubAuthService.Verify(x=>x.AddStubEmployerAuth(It.IsAny<IResponseCookies>(), model), Times.Once);
+        stubAuthService.Verify(x=>x.AddStubEmployerAuth(It.IsAny<IResponseCookies>(), model,false), Times.Once);
     }
     
     [Test, MoqAutoData]
@@ -78,7 +78,7 @@ public class ServiceControllerTests
         var actual = controller.AccountDetails(model) as NotFoundResult;
 
         actual.Should().NotBeNull();
-        stubAuthService.Verify(x=>x.AddStubEmployerAuth(It.IsAny<IResponseCookies>(), model), Times.Never);
+        stubAuthService.Verify(x=>x.AddStubEmployerAuth(It.IsAny<IResponseCookies>(), model,false), Times.Never);
     }
     
     [Test, MoqAutoData]
