@@ -3,7 +3,6 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Newtonsoft.Json;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
-using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.GovUK.Auth.Services;
 
@@ -28,12 +27,6 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
                 .Value;
             
         var result = await _accountsSvc.GetUserAccounts(userId, email);
-
-        //update the user information
-        await _accountsSvc.UpsertUserAccount(userId, new UpsertAccountRequest
-        {
-            Email = email, GovIdentifier = userId
-        });
 
         var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
         var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
