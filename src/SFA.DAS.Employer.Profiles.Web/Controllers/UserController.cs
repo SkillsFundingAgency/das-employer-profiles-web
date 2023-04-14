@@ -44,6 +44,7 @@ public class UserController : Controller
     [Route("add-user-details", Name = RouteNames.AddUserDetails)]
     public async Task<IActionResult> AddUserDetails(AddUserDetailsModel model)
     {
+        // check if the model state is valid.
         if (!ModelState.IsValid)
         {
             return View(new AddUserDetailsModel(_configuration["ResourceEnvironmentName"])
@@ -59,9 +60,11 @@ public class UserController : Controller
             });
         }
 
+        // read the claims from the ClaimsPrincipal.
         var userId = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier)).Value;
         var email = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.Email)).Value;
 
+        // Add the user details to the repository via Apim.
         _ = await _accountsService.UpsertUserAccount(userId, new UpsertAccountRequest
         {
             FirstName = model.FirstName,
@@ -70,6 +73,7 @@ public class UserController : Controller
             GovIdentifier = userId
         });
 
-        return RedirectToRoute(RouteNames.StubSignedIn);
+        // re-direct the user to the Add Paye Scheme page.
+        return RedirectToRoute(RouteNames.AddPayeScheme);
     }
 }

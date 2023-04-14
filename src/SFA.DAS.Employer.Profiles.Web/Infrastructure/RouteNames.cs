@@ -10,4 +10,5 @@ public static class RouteNames
     public const string StubAccountDetailsGet = "account-details-get";
     public const string StubSignedIn = "stub-signedin-get";
     public const string AddUserDetails = "add-user-details";
+    public const string AddPayeScheme = "add-paye-scheme";
 }
