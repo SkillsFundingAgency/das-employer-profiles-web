@@ -26,5 +26,6 @@ namespace SFA.DAS.Employer.Profiles.Web.Models
         public string FirstNameError => GetErrorMessage(nameof(FirstName));
         public string LastNameError => GetErrorMessage(nameof(LastName));
         public string TermsOfUseLink => $"https://accounts.{_environmentPart}.{_domainPart}.gov.uk/service/termsAndConditions/overview";
+        public string RedirectUrl => $"https://accounts.{_environmentPart}.{_domainPart}.gov.uk";
     }
 }

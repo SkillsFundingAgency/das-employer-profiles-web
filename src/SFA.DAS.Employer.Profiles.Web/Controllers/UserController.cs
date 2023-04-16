@@ -13,7 +13,7 @@ namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
 [Route("accounts/{employerAccountId}/[controller]")]
 [SetNavigationSection(NavigationSection.AccountsHome)]
-//[Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]
+[Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]
 public class UserController : Controller
 {
     private readonly IConfiguration _configuration;
@@ -73,7 +73,7 @@ public class UserController : Controller
             GovIdentifier = userId
         });
 
-        // re-direct the user to the Add Paye Scheme page.
-        return RedirectToRoute(RouteNames.AddPayeScheme);
+        // re-direct the user to the default home page of manage apprenticeship service.
+        return RedirectToRoute(model.RedirectUrl);
     }
 }
