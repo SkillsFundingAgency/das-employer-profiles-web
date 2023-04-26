@@ -40,6 +40,11 @@ public class WhenPopulatingAccountClaims
         var actualClaimValue = actual.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
         actual.FirstOrDefault(c => c.Type.Equals(ClaimTypes.AuthorizationDecision))?.Value?.Should().BeNullOrEmpty();
         JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
+        actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value.Should().Be(accountData.EmployerUserId);
+        actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailAddress);
+        actual.First(c => c.Type.Equals(EmployerClaims.GivenName)).Value.Should().Be(accountData.FirstName);
+        actual.First(c => c.Type.Equals(EmployerClaims.FamilyName)).Value.Should().Be(accountData.LastName);
+        actual.First(c => c.Type.Equals(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier)).Value.Should().Be($"{accountData.FirstName} {accountData.LastName}");
     }
 
     [Test, MoqAutoData]
