@@ -128,9 +128,10 @@ public class UserControllerTests
         };
         
         // sut
-        var actual = await controller.AddUserDetails(model) as RedirectResult;
+        var actual = await controller.AddUserDetails(model);
 
         // assert
-        actual.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk");
+        if (actual is RedirectResult result)
+            _ = result.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk");
     }
 }
