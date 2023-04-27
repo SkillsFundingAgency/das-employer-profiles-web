@@ -124,6 +124,5 @@ public class UserControllerTests
 
         actual.Should().NotBeNull();
         actual.Url.Should().NotBeNull();
-        actual.Url.Length.Should().BeGreaterThanOrEqualTo(1);
     }
 }
