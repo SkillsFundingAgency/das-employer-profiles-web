@@ -131,7 +131,6 @@ public class UserControllerTests
         var actual = await controller.AddUserDetails(model) as RedirectResult;
 
         // assert
-        actual.Should().NotBeNull();
         actual.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk");
     }
 }
