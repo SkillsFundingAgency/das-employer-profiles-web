@@ -64,6 +64,7 @@ public class UserControllerTests
     public async Task When_InValid_Model_And_Auth_Is_Given_Throw_Invalid_ModelState(
         string emailClaimValue,
         string nameClaimValue,
+        string errorMessage,
         AddUserDetailsModel model,
         [Frozen] Mock<IConfiguration> configuration,
         [Greedy] UserController controller)
@@ -82,8 +83,8 @@ public class UserControllerTests
         {
             HttpContext = httpContext
         };
-        controller.ModelState.AddModelError("FirstName", "Enter a First Name");
-        controller.ModelState.AddModelError("LastName", "Enter a Last Name");
+        controller.ModelState.AddModelError(nameof(model.FirstName), errorMessage);
+        controller.ModelState.AddModelError(nameof(model.LastName), errorMessage);
 
 
         // sut
@@ -94,5 +95,35 @@ public class UserControllerTests
         var actualModel = actual.Model as AddUserDetailsModel;
         actualModel.FirstNameError.Length.Should().BeGreaterThanOrEqualTo(1);
         actualModel.LastNameError.Length.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Test, MoqAutoData]
+    public async Task When_Valid_Model_And_Auth_Is_Given_AccountService_Return_Redirect(
+        string emailClaimValue,
+        string nameClaimValue,
+        AddUserDetailsModel model,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Email, emailClaimValue),
+                new Claim(ClaimTypes.NameIdentifier, nameClaimValue)
+            })})
+        };
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+
+        var actual = await controller.AddUserDetails(model) as RedirectResult;
+
+        actual.Should().NotBeNull();
+        actual.Url.Should().NotBeNull();
+        actual.Url.Length.Should().BeGreaterThanOrEqualTo(1);
     }
 }

@@ -1,3 +1,4 @@
+using System.Web;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using SFA.DAS.Employer.Profiles.Domain.Employers.ApiRequests;
@@ -11,7 +12,8 @@ public class WhenBuildingPutUserAccountRequest
     public void Then_The_Request_Is_Correctly_Built_And_Returned(string userId, UpsertAccountRequest request)
     {
         var actual = new UpsertUserApiRequest(userId, request);
+        var encodedUserId = HttpUtility.UrlEncode(userId);
 
-        actual.PutUrl.Should().Be($"accountusers/{userId}/upsert-user");
+        actual.PutUrl.Should().Be($"accountusers/{encodedUserId}/upsert-user");
     }
 }

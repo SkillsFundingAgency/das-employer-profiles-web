@@ -1,3 +1,4 @@
+using System.Web;
 using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Domain.OuterApi;
 
@@ -9,7 +10,7 @@ public class UpsertUserApiRequest : IPutApiRequest
 
     public UpsertUserApiRequest(string userId, UpsertAccountRequest request)
     {
-        _userId = userId;
+        _userId = HttpUtility.UrlEncode(userId);
         Data = request;
     }
 

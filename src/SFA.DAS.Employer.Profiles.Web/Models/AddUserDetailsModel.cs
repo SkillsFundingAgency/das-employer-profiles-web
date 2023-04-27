@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.Employer.Profiles.Web.Models
 {
-    public class AddUserDetailsModel: ViewModelBase
+    public class AddUserDetailsModel : ViewModelBase
     {
         private readonly string? _environmentPart;
         private readonly string? _domainPart;
@@ -18,7 +18,7 @@ namespace SFA.DAS.Employer.Profiles.Web.Models
         [Required(ErrorMessage = "Enter your first name")]
         [MinLength(1)]
         public string FirstName { get; set; } = string.Empty;
-        
+
         [Required(ErrorMessage = "Enter your first name")]
         [MinLength(1)]
         public string LastName { get; set; } = string.Empty;
