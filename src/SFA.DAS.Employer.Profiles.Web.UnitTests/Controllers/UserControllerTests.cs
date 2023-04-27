@@ -96,4 +96,43 @@ public class UserControllerTests
         actualModel.FirstNameError.Length.Should().BeGreaterThanOrEqualTo(1);
         actualModel.LastNameError.Length.Should().BeGreaterThanOrEqualTo(1);
     }
+
+    [Test, MoqAutoData]
+    public async Task When_Valid_Model_And_Auth_Is_Given_AccountService_Return_Redirect(
+        string emailClaimValue,
+        string nameClaimValue,
+        string firstName,
+        string lastName,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        // arrange
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+        var model = new AddUserDetailsModel("test")
+        {
+            FirstName = firstName,
+            LastName = lastName,
+        };
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Email, emailClaimValue),
+                new Claim(ClaimTypes.NameIdentifier, nameClaimValue)
+            })})
+        };
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+        
+        // sut
+        var actual = await controller.AddUserDetails(model) as RedirectResult;
+
+        // assert
+        actual.Should().NotBeNull();
+        actual.Url.Should().NotBeNull();
+        actual.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk");
+    }
 }
