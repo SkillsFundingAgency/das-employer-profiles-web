@@ -132,7 +132,6 @@ public class UserControllerTests
 
         // assert
         actual.Should().NotBeNull();
-        actual.Url.Should().NotBeNull();
         actual.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk");
     }
 }
