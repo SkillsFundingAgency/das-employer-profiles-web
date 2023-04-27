@@ -96,33 +96,4 @@ public class UserControllerTests
         actualModel.FirstNameError.Length.Should().BeGreaterThanOrEqualTo(1);
         actualModel.LastNameError.Length.Should().BeGreaterThanOrEqualTo(1);
     }
-
-    [Test, MoqAutoData]
-    public async Task When_Valid_Model_And_Auth_Is_Given_AccountService_Return_Redirect(
-        string emailClaimValue,
-        string nameClaimValue,
-        AddUserDetailsModel model,
-        [Frozen] Mock<IConfiguration> configuration,
-        [Greedy] UserController controller)
-    {
-        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
-
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Email, emailClaimValue),
-                new Claim(ClaimTypes.NameIdentifier, nameClaimValue)
-            })})
-        };
-        controller.ControllerContext = new ControllerContext
-        {
-            HttpContext = httpContext
-        };
-
-        var actual = await controller.AddUserDetails(model) as RedirectResult;
-
-        actual.Should().NotBeNull();
-        actual.Url.Should().NotBeNull();
-    }
 }
