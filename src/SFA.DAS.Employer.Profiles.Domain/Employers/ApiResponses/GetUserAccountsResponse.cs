@@ -7,6 +7,14 @@ public class GetUserAccountsResponse
     [JsonPropertyName("IsSuspended")]
     public bool IsSuspended { get; set; }
     
+    [JsonPropertyName("lastName")]
+    public string LastName { get; set; }
+    
+    [JsonPropertyName("firstName")]
+    public string FirstName { get; set; }
+    [JsonPropertyName("employerUserId")]
+    public string EmployerUserId { get; set; }
+    
     [JsonPropertyName("userAccounts")]
     public List<EmployerIdentifier> UserAccounts { get; set; }
 }

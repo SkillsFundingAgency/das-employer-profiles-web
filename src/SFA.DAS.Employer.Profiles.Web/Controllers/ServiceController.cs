@@ -9,7 +9,6 @@ using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
-using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
@@ -33,8 +32,20 @@ public class ServiceController : Controller
         var authenticationProperties = new AuthenticationProperties();
         authenticationProperties.Parameters.Clear();
         authenticationProperties.Parameters.Add("id_token",idToken);
+
+        var schemes = new List<string>
+        {
+            CookieAuthenticationDefaults.AuthenticationScheme
+        };
+        _ = bool.TryParse(_configuration["StubAuth"], out var stubAuth);
+        if (!stubAuth)
+        {
+            schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
+        }
+        
         return SignOut(
-            authenticationProperties, CookieAuthenticationDefaults.AuthenticationScheme, OpenIdConnectDefaults.AuthenticationScheme);
+            authenticationProperties, 
+            schemes.ToArray());
     }
 
     [AllowAnonymous]
@@ -54,32 +65,38 @@ public class ServiceController : Controller
     
     [HttpGet]
     [Route("account-details", Name = RouteNames.StubAccountDetailsGet)]
-    public IActionResult AccountDetails()
+    public IActionResult AccountDetails([FromQuery]string returnUrl)
     {
         if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
             return NotFound();
         }
-        return View();
+        return View("AccountDetails",new StubAuthenticationViewModel
+        {
+            ReturnUrl = returnUrl
+        });
     }
     [HttpPost]
     [Route("account-details", Name = RouteNames.StubAccountDetailsPost)]
-    public IActionResult AccountDetails(StubAuthUserDetails model)
+    public async Task<IActionResult> AccountDetails(StubAuthenticationViewModel model)
     {
         if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
             return NotFound();
         }
 
-        _stubAuthenticationService.AddStubEmployerAuth(Response.Cookies, model);
+        var claims = await _stubAuthenticationService.GetStubSignInClaims(model);
         
-        return RedirectToRoute(RouteNames.StubSignedIn);
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
+            new AuthenticationProperties());
+        
+        return RedirectToRoute(RouteNames.StubSignedIn, new {returnUrl = model.ReturnUrl});
     }
 
     [HttpGet]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [Route("Stub-Auth", Name = RouteNames.StubSignedIn)]
-    public IActionResult StubSignedIn() 
+    public IActionResult StubSignedIn([FromQuery]string returnUrl) 
     {
         if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
@@ -92,8 +109,8 @@ public class ServiceController : Controller
             Accounts = JsonConvert.DeserializeObject<Dictionary<string,EmployerUserAccountItem>>(
                 User.Claims.FirstOrDefault(c=>c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value)
                 .Select(c=>c.Value)
-                .ToList()
-
+                .ToList(),
+            ReturnUrl = returnUrl
         };
         return View(viewModel);
     }

@@ -22,9 +22,14 @@ builder.Services.AddAuthenticationServices();
 builder.Services.AddLogging();
 builder.Services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
-builder.Services.AddAndConfigureGovUkAuthentication(rootConfiguration, $"SFA.DAS.EmployerProfile.Auth", typeof(EmployerAccountPostAuthenticationClaimsHandler));
+builder.Services.AddAndConfigureGovUkAuthentication(
+    rootConfiguration, 
+    typeof(EmployerAccountPostAuthenticationClaimsHandler),
+    "",
+    "/service/account-details");
             
-builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, rootConfiguration["ResourceEnvironmentName"]);
+builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, 
+    rootConfiguration["ResourceEnvironmentName"]);
             
 builder.Services.Configure<RouteOptions>(options =>
 {
@@ -39,8 +44,13 @@ builder.Services.Configure<RouteOptions>(options =>
                     
 });
 
-builder.Services.AddApplicationInsightsTelemetry();
 
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddDataProtection(rootConfiguration);
+    
+}
+builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
             

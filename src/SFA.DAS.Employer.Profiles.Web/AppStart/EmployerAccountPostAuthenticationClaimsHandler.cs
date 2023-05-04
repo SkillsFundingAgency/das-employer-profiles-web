@@ -35,6 +35,16 @@ public class EmployerAccountPostAuthenticationClaimsHandler : ICustomClaims
         {
             claims.Add(new Claim(ClaimTypes.AuthorizationDecision, "Suspended"));
         }
+        claims.Add(new Claim(EmployerClaims.GivenName, result.FirstName));
+        claims.Add(new Claim(EmployerClaims.FamilyName, result.LastName));
+        claims.Add(new Claim(EmployerClaims.IdamsUserDisplayNameClaimTypeIdentifier, $"{result.FirstName} {result.LastName}"));
+        claims.Add(new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, result.EmployerUserId));
+        claims.Add(new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email));
+        
+        result.EmployerAccounts
+            .Where(c => c.Role.Equals("owner", StringComparison.CurrentCultureIgnoreCase) || c.Role.Equals("transactor", StringComparison.CurrentCultureIgnoreCase))
+            .ToList().ForEach(u => claims.Add(new Claim(EmployerClaims.Account, u.AccountId)));
+        
         claims.Add(associatedAccountsClaim);
 
         return claims;
