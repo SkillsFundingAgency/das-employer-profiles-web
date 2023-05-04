@@ -74,6 +74,6 @@ public class UserController : Controller
         });
 
         // re-direct the user to the default home page of manage apprenticeship service.
-        return RedirectToRoute(model.RedirectUrl);
+        return Redirect(model.RedirectUrl);
     }
 }
