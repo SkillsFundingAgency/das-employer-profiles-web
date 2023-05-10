@@ -6,6 +6,12 @@ public class EmployerUserAccounts
 {
     public IEnumerable<EmployerUserAccountItem> EmployerAccounts { get ; set ; }
     public bool IsSuspended { get; set; }
+    
+    public string EmployerUserId { get; set; }
+
+    public string LastName { get; set; }
+
+    public string FirstName { get; set; }
     public static implicit operator EmployerUserAccounts(GetUserAccountsResponse source)
     {
         var accounts = source?.UserAccounts == null
@@ -16,8 +22,12 @@ public class EmployerUserAccounts
         {
             EmployerAccounts = accounts,
             IsSuspended = source?.IsSuspended ?? false,
+            FirstName = source?.FirstName ?? "",
+            LastName = source?.LastName ?? "",
+            EmployerUserId = source?.EmployerUserId ?? "",
         };
     }
+
 }
 
 public class EmployerUserAccountItem
