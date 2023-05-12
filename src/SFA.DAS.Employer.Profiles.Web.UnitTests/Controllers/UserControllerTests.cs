@@ -108,7 +108,7 @@ public class UserControllerTests
     {
         // arrange
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
-        var model = new AddUserDetailsModel("test")
+        var model = new AddUserDetailsModel
         {
             FirstName = firstName,
             LastName = lastName,
@@ -132,6 +132,6 @@ public class UserControllerTests
 
         // assert
         if (actual is RedirectResult result)
-            _ = result.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk");
+            _ = result.Url.Should().BeEquivalentTo("https://accounts.test-eas.apprenticeships.education.gov.uk/service/index");
     }
 }

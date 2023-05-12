@@ -1,6 +1,5 @@
 ﻿namespace SFA.DAS.Employer.Profiles.Web.Models
 {
-    [Obsolete]
     public class ViewModelBase
     {
         public Dictionary<string, string?> ErrorDictionary { get; set; }

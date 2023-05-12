@@ -8,12 +8,12 @@ using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
 using System.Security.Claims;
 using SFA.DAS.Employer.Profiles.Domain.Models;
+using SFA.DAS.Employer.Profiles.Web.Extensions;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
-[Route("accounts/{employerAccountId}/[controller]")]
 [SetNavigationSection(NavigationSection.AccountsHome)]
-[Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]
+
 public class UserController : Controller
 {
     private readonly IConfiguration _configuration;
@@ -24,30 +24,36 @@ public class UserController : Controller
         _configuration = configuration;
         _accountsService = accountsService;
     }
-    
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]    
     [HttpGet]
-    [Route("change-sign-in-details", Name = RouteNames.ChangeSignInDetails)]
+    [Route("accounts/{employerAccountId}/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetails)]
     public IActionResult ChangeSignInDetails()
     {
         var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
         return View(model);
     }
 
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
-    [Route("add-user-details", Name = RouteNames.AddUserDetails)]
+    [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
     public IActionResult AddUserDetails()
     {
-        return View(new AddUserDetailsModel(_configuration["ResourceEnvironmentName"]));
+        var addUserDetailsModel = new AddUserDetailsModel
+        {
+            TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
+        };
+        return View(addUserDetailsModel);
     }
-
+    
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpPost]
-    [Route("add-user-details", Name = RouteNames.AddUserDetails)]
+    [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
     public async Task<IActionResult> AddUserDetails(AddUserDetailsModel model)
     {
         // check if the model state is valid.
         if (!ModelState.IsValid)
         {
-            return View(new AddUserDetailsModel(_configuration["ResourceEnvironmentName"])
+            return View(new AddUserDetailsModel
             {
                 ErrorDictionary = ModelState
                     .Where(x => x.Value is {Errors.Count: > 0})
@@ -55,6 +61,7 @@ public class UserController : Controller
                         kvp => kvp.Key,
                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
                     ),
+                TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"]),
                 FirstName = model.FirstName,
                 LastName = model.LastName
             });
@@ -74,6 +81,6 @@ public class UserController : Controller
         });
 
         // re-direct the user to the default home page of manage apprenticeship service.
-        return Redirect(model.RedirectUrl);
+        return Redirect(UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"]));
     }
 }

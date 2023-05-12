@@ -1,4 +1,5 @@
 using FluentAssertions;
+using SFA.DAS.Employer.Profiles.Web.Extensions;
 using SFA.DAS.Employer.Profiles.Web.Models;
 using SFA.DAS.Testing.AutoFixture;
 
@@ -9,33 +10,33 @@ public class WhenBuildingAddUserDetailsViewModel
     [Test]
     public void Then_The_TermsOfUseLink_Is_Correct_For_Production_Environment()
     {
-        var actual = new AddUserDetailsModel("prd");
+        var actual = UrlRedirectionExtensions.GetTermsAndConditionsUrl("prd");
 
-        actual.TermsOfUseLink.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/termsAndConditions/overview");
+        actual.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/termsAndConditions/overview");
     }
 
     [Test]
     public void Then_The_TermsOfUseLink_Is_Correct_For_Non_Production_Environment()
     {
-        var actual = new AddUserDetailsModel("test");
+        var actual = UrlRedirectionExtensions.GetTermsAndConditionsUrl("test");
 
-        actual.TermsOfUseLink.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk/service/termsAndConditions/overview");
+        actual.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk/service/termsAndConditions/overview");
     }
 
     [Test]
     public void Then_The_RedirectLink_Is_Correct_For_Production_Environment()
     {
-        var actual = new AddUserDetailsModel("prd");
+        var actual = UrlRedirectionExtensions.GetRedirectUrl("prd");
 
-        actual.RedirectUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk");
+        actual.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/index");
     }
 
     [Test]
     public void Then_The_RedirectLink_Is_Correct_For_Non_Production_Environment()
     {
-        var actual = new AddUserDetailsModel("test");
+        var actual = UrlRedirectionExtensions.GetRedirectUrl("test");
 
-        actual.RedirectUrl.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk");
+        actual.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk/service/index");
     }
 
     [Test, MoqAutoData]
@@ -44,7 +45,7 @@ public class WhenBuildingAddUserDetailsViewModel
         string firstNameError,
         string lastNameError)
     {
-        var actual = new AddUserDetailsModel(env)
+        var actual = new AddUserDetailsModel
         {
             ErrorDictionary = new Dictionary<string, string?>
             {
