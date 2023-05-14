@@ -68,7 +68,8 @@ public class UserController : Controller
         }
 
         // read the claims from the ClaimsPrincipal.
-        var userId = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier)).Value;
+        var userId = HttpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value;
+        var govIdentifier = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier)).Value;
         var email = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.Email)).Value;
 
         // Add the user details to the repository via Apim.
@@ -77,7 +78,7 @@ public class UserController : Controller
             FirstName = model.FirstName,
             Email = email,
             LastName = model.LastName,
-            GovIdentifier = userId
+            GovIdentifier = govIdentifier
         });
 
         // re-direct the user to the default home page of manage apprenticeship service.
