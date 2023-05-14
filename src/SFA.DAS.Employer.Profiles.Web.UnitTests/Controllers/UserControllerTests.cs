@@ -68,7 +68,7 @@ public class UserControllerTests
     }
 
     [Test, MoqAutoData]
-    public async Task When_Valid_Model_And_Auth_Is_Given_AccountService_Return_Redirect(
+    public async Task When_Valid_Model_And_Auth_Is_Given_AccountService_Called_Claims_Added_And_Return_Redirect_To_Employer_Accounts(
         string emailClaimValue,
         string nameClaimValue,
         string userId,
@@ -112,5 +112,8 @@ public class UserControllerTests
                 && c.FirstName.Equals(model.FirstName)
                 && c.LastName.Equals(model.LastName)
                 )), Times.Once);
+        httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.GivenName)).Value.Should().Be(model.FirstName);
+        httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.FamilyName)).Value.Should().Be(model.LastName);
+        httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailClaimValue);
     }
 }

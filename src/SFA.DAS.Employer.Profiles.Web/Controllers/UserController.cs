@@ -81,6 +81,13 @@ public class UserController : Controller
             GovIdentifier = govIdentifier
         });
 
+        HttpContext.User.Identities.FirstOrDefault()?.AddClaims(new List<Claim>
+        {
+            new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email),
+            new Claim(EmployerClaims.GivenName, model.FirstName),
+            new Claim(EmployerClaims.FamilyName, model.LastName)
+        });
+        
         // re-direct the user to the default home page of manage apprenticeship service.
         return Redirect(UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"]));
     }
