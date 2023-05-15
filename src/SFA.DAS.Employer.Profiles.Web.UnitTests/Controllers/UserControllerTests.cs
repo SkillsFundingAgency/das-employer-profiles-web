@@ -10,6 +10,8 @@ using SFA.DAS.Employer.Profiles.Web.Controllers;
 using SFA.DAS.Employer.Profiles.Web.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Controllers;
@@ -76,6 +78,8 @@ public class UserControllerTests
         string lastName,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IEmployerAccountService> employerAccountService,
+        [Frozen] Mock<IAuthenticationService> authenticationService,
+        [Frozen] Mock<IServiceProvider> serviceProviderMock,
         [Greedy] UserController controller)
     {
         // arrange
@@ -85,6 +89,9 @@ public class UserControllerTests
             FirstName = firstName,
             LastName = lastName,
         };
+        serviceProviderMock
+            .Setup(_ => _.GetService(typeof(IAuthenticationService)))
+            .Returns(authenticationService.Object);
 
         var httpContext = new DefaultHttpContext
         {
@@ -93,7 +100,8 @@ public class UserControllerTests
                 new Claim(ClaimTypes.Email, emailClaimValue),
                 new Claim(ClaimTypes.NameIdentifier, nameClaimValue),
                 new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, userId)
-            })})
+            })}),
+            RequestServices = serviceProviderMock.Object
         };
         controller.ControllerContext = new ControllerContext
         {
@@ -115,5 +123,6 @@ public class UserControllerTests
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.GivenName)).Value.Should().Be(model.FirstName);
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.FamilyName)).Value.Should().Be(model.LastName);
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailClaimValue);
+        authenticationService.Verify(x=>x.SignInAsync(httpContext, CookieAuthenticationDefaults.AuthenticationScheme, httpContext.User, null));
     }
 }
