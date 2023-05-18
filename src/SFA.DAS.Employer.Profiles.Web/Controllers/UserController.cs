@@ -88,7 +88,7 @@ public class UserController : Controller
         });
 
 
-        User.Identities.FirstOrDefault().AddClaims(new List<Claim>
+        User.Identities.First().AddClaims(new List<Claim>
         {
             new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email),
             new Claim(EmployerClaims.GivenName, model.FirstName),
