@@ -22,6 +22,8 @@ builder.Services.AddAuthenticationServices();
 builder.Services.AddLogging();
 builder.Services.Configure<IISServerOptions>(options => { options.AutomaticAuthentication = false; });
 
+builder.Services.AddHealthChecks();
+
 builder.Services.AddAndConfigureGovUkAuthentication(
     rootConfiguration, 
     typeof(EmployerAccountPostAuthenticationClaimsHandler),
@@ -59,6 +61,8 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     
 }
+
+app.UseHealthChecks("/ping");
 
 app.UseAuthentication();
 

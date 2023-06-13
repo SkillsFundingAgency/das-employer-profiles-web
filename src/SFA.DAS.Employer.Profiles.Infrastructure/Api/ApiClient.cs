@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Options;
 using SFA.DAS.Employer.Profiles.Domain.Configuration;
 using SFA.DAS.Employer.Profiles.Domain.OuterApi;
+using System.Text;
 using System.Text.Json;
 
 namespace SFA.DAS.Employer.Profiles.Infrastructure.Api;
@@ -25,6 +26,21 @@ public class ApiClient : IApiClient
 
         return await ProcessResponse<TResponse>(response);
     }
+
+    public async Task<ApiResponse<TResponse>> Put<TResponse>(IPutApiRequest request)
+    {
+        var requestMessage = new HttpRequestMessage(HttpMethod.Put, request.PutUrl)
+        {
+            Content = new StringContent(JsonSerializer.Serialize(request.Data), Encoding.UTF8, "application/json"),
+            VersionPolicy = HttpVersionPolicy.RequestVersionOrLower
+        };
+        AddAuthenticationHeader(requestMessage);
+
+        var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
+
+        return await ProcessResponse<TResponse>(response);
+    }
+
     private void AddAuthenticationHeader(HttpRequestMessage httpRequestMessage)
     {
         httpRequestMessage.Headers.Add("Ocp-Apim-Subscription-Key", _config.Key);
