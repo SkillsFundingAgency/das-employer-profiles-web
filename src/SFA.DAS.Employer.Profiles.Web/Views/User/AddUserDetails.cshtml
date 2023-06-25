@@ -14,6 +14,7 @@
     <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">Add your user details</h1>
         <form method="POST">
+            <input asp-for="CorrelationId" type="hidden"/>
             <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.FirstNameError) ? "govuk-form-group--error" : "")">
                 <label id="FirstName-label" for="FirstName" class="govuk-label">
                     First name
@@ -43,7 +44,7 @@
                        value="@Model.LastName"/>
             </div>
 
-            
+
             <div class="govuk-inset-text">
                 <span>By continuing you accept the <a href="@Model.TermsOfUseLink" class="govuk-link" target="_blank">terms of use(opens in a new tab)</a></span>
             </div>
@@ -51,7 +52,7 @@
                 <button class="govuk-button" type="submit">Continue</button>
             </div>
 
-            
+
         </form>
     </div>
 </div>

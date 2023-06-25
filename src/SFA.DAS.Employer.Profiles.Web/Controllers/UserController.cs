@@ -41,10 +41,13 @@ public class UserController : Controller
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
-    public IActionResult AddUserDetails()
+    public IActionResult AddUserDetails([FromQuery]string firstName = "", [FromQuery]string lastName = "", [FromQuery]string correlationId = "")
     {
         var addUserDetailsModel = new AddUserDetailsModel
         {
+            FirstName = firstName,
+            LastName = lastName,
+            CorrelationId = correlationId,
             TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
         };
         return View(addUserDetailsModel);
@@ -68,6 +71,7 @@ public class UserController : Controller
                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
                     ),
                 TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"]),
+                CorrelationId = model.CorrelationId,
                 FirstName = model.FirstName,
                 LastName = model.LastName
             });

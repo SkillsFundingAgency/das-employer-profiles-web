@@ -33,6 +33,49 @@ public class UserControllerTests
     }
 
     [Test, MoqAutoData]
+    public void Then_The_FirstName_LastName_And_CorrelationId_Are_Passed_To_The_View(
+        string firstName,
+        string lastName,
+        string correlationId,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
+
+        var actual = controller.AddUserDetails(firstName, lastName, correlationId);
+        
+        Assert.IsNotNull(actual);
+        var actualViewResult = actual as ViewResult;
+        Assert.IsNotNull(actualViewResult);
+        var actualModel = actualViewResult!.Model as AddUserDetailsModel;
+        Assert.IsNotNull(actualModel);
+        actualModel!.FirstName.Should().Be(firstName);
+        actualModel!.LastName.Should().Be(lastName);
+        actualModel!.CorrelationId.Should().Be(correlationId);
+        actualModel.TermsOfUseLink.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/termsAndConditions/overview");
+    }
+    
+    [Test, MoqAutoData]
+    public void Then_The_TermsAndConditionsUrl_Is_Correctly_Generated_Are_Passed_To_The_View(
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+
+        var actual = controller.AddUserDetails();
+        
+        Assert.IsNotNull(actual);
+        var actualViewResult = actual as ViewResult;
+        Assert.IsNotNull(actualViewResult);
+        var actualModel = actualViewResult!.Model as AddUserDetailsModel;
+        Assert.IsNotNull(actualModel);
+        actualModel!.FirstName.Should().BeNullOrEmpty();
+        actualModel!.LastName.Should().BeNullOrEmpty();
+        actualModel!.CorrelationId.Should().BeNullOrEmpty();
+        actualModel.TermsOfUseLink.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk/service/termsAndConditions/overview");
+    }
+
+    [Test, MoqAutoData]
     public async Task When_InValid_Model_And_Auth_Is_Given_Throw_Invalid_ModelState(
         string emailClaimValue,
         string nameClaimValue,
