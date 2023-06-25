@@ -101,7 +101,10 @@ public class UserController : Controller
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
         
-        // re-direct the user to the default home page of manage apprenticeship service.
+        if (!string.IsNullOrEmpty(model.CorrelationId))
+        {
+            return Redirect($"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{model.CorrelationId}");
+        }
         return Redirect(UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"]));
     }
 }
