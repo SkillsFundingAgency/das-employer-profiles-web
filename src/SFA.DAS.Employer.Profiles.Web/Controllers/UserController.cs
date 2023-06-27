@@ -50,6 +50,7 @@ public class UserController : Controller
             CorrelationId = correlationId,
             TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
         };
+        ModelState.Clear();
         return View(addUserDetailsModel);
     }
     
