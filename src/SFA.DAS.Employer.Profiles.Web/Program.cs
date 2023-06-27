@@ -49,11 +49,8 @@ builder.Services.Configure<RouteOptions>(options =>
 });
 
 
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDataProtection(rootConfiguration);
+builder.Services.AddDataProtection(rootConfiguration);
     
-}
 builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
