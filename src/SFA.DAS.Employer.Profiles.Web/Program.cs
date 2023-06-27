@@ -9,7 +9,7 @@ using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.GovUK.Auth.AppStart;
 
 ThreadPool.SetMinThreads(200, 200);
-ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+//ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 var builder = WebApplication.CreateBuilder(args);
 
 var rootConfiguration = builder.Configuration.LoadConfiguration();
