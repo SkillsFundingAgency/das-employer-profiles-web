@@ -8,6 +8,7 @@ using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.GovUK.Auth.AppStart;
 
+ThreadPool.SetMinThreads(200, 200);
 var builder = WebApplication.CreateBuilder(args);
 
 var rootConfiguration = builder.Configuration.LoadConfiguration();
