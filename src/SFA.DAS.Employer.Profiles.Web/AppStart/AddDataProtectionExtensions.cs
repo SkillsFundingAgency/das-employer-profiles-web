@@ -8,7 +8,6 @@ public static class AddDataProtectionExtensions
 {
     public static void AddDataProtection(this IServiceCollection services, IConfiguration configuration)
     {
-            
         var config = configuration.GetSection(nameof(EmployerProfilesWebConfiguration))
             .Get<EmployerProfilesWebConfiguration>();
 
@@ -20,7 +19,6 @@ public static class AddDataProtectionExtensions
             var dataProtectionKeysDatabase = config.DataProtectionKeysDatabase;
 
             var configurationOptions = ConfigurationOptions.Parse($"{redisConnectionString},{dataProtectionKeysDatabase}");
-            configurationOptions.SocketManager = SocketManager.ThreadPool;
             var redis = ConnectionMultiplexer
                 .Connect(configurationOptions);
 

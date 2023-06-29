@@ -31,6 +31,20 @@ public class UserControllerTests
         var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
         Assert.AreEqual("https://home.integration.account.gov.uk/settings", actualModel?.SettingsLink);
     }
+    
+    [Test, MoqAutoData]
+    public void Then_The_View_Is_Returned_With_Model_With_No_Account(
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+
+        var actual = controller.ChangeSignInDetailsNoAccount() as ViewResult;
+
+        actual.Should().NotBeNull();
+        var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
+        Assert.AreEqual("https://home.integration.account.gov.uk/settings", actualModel?.SettingsLink);
+    }
 
     [Test, MoqAutoData]
     public void Then_The_FirstName_LastName_And_CorrelationId_Are_Passed_To_The_View(

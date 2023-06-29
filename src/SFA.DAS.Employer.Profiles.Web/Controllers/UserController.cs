@@ -10,6 +10,7 @@ using SFA.DAS.Employer.Shared.UI.Attributes;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Extensions;
 
@@ -27,6 +28,7 @@ public class UserController : Controller
         _configuration = configuration;
         _accountsService = accountsService;
     }
+    
     [SetNavigationSection(NavigationSection.AccountsHome)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]    
     [HttpGet]
@@ -35,6 +37,15 @@ public class UserController : Controller
     {
         var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
         return View(model);
+    }
+    
+    [SetNavigationSection(NavigationSection.None)]
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [Route("accounts/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetailsNoAccount)]
+    public IActionResult ChangeSignInDetailsNoAccount()
+    {
+        var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
+        return View("ChangeSignInDetails", model);
     }
 
     [SetNavigationSection(NavigationSection.None)]
