@@ -1,4 +1,3 @@
-using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Employer.Profiles.Domain.Configuration;
@@ -8,8 +7,6 @@ using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.GovUK.Auth.AppStart;
 
-ThreadPool.SetMinThreads(200, 200);
-//ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 var builder = WebApplication.CreateBuilder(args);
 
 var rootConfiguration = builder.Configuration.LoadConfiguration();
