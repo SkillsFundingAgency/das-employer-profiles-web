@@ -19,8 +19,10 @@ public static class AddDataProtectionExtensions
             var redisConnectionString = config.RedisConnectionString;
             var dataProtectionKeysDatabase = config.DataProtectionKeysDatabase;
 
+            var configurationOptions = ConfigurationOptions.Parse($"{redisConnectionString},{dataProtectionKeysDatabase}");
+            configurationOptions.SocketManager = SocketManager.ThreadPool;
             var redis = ConnectionMultiplexer
-                .Connect($"{redisConnectionString},{dataProtectionKeysDatabase}");
+                .Connect(configurationOptions);
 
             services.AddDataProtection()
                 .SetApplicationName("das-employer")
