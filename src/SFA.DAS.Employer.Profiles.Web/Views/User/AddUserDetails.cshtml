@@ -4,6 +4,7 @@
 @{
     Layout = "_Layout";
     ViewBag.ShowNav = false;
+    ViewBag.Title = "Add your user details";
 }
 <div class="govuk-grid-row" >
     <div class="govuk-grid-column-two-thirds">
@@ -12,7 +13,7 @@
 </div>
 <div class="govuk-grid-row" >
     <div class="govuk-grid-column-two-thirds">
-        <h1 class="govuk-heading-xl">Add your user details</h1>
+        <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <form method="POST">
             <input asp-for="CorrelationId" type="hidden"/>
             <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.FirstNameError) ? "govuk-form-group--error" : "")">
