@@ -10,6 +10,7 @@ using SFA.DAS.Employer.Shared.UI.Attributes;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.DataProtection;
 using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Extensions;
@@ -95,12 +96,14 @@ public class UserController : Controller
         var email = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.Email)).Value;
 
         // Add the user details to the repository via Apim.
+        Guid.TryParse(model.CorrelationId, out var correlationId);
         _ = await _accountsService.UpsertUserAccount(userId, new UpsertAccountRequest
         {
             FirstName = model.FirstName,
             Email = email,
             LastName = model.LastName,
-            GovIdentifier = govIdentifier
+            GovIdentifier = govIdentifier,
+            CorrelationId = correlationId
         });
 
 

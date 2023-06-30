@@ -190,7 +190,7 @@ public class UserControllerTests
         string userId,
         string firstName,
         string lastName,
-        string correlationId,
+        Guid correlationId,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IEmployerAccountService> employerAccountService,
         [Frozen] Mock<IAuthenticationService> authenticationService,
@@ -203,7 +203,7 @@ public class UserControllerTests
         {
             FirstName = firstName,
             LastName = lastName,
-            CorrelationId = correlationId
+            CorrelationId = correlationId.ToString()
         };
         serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
@@ -235,6 +235,7 @@ public class UserControllerTests
                 c.GovIdentifier.Equals(nameClaimValue)
                 && c.FirstName.Equals(model.FirstName)
                 && c.LastName.Equals(model.LastName)
+                && c.CorrelationId.ToString()!.Equals(model.CorrelationId)
                 )), Times.Once);
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.GivenName)).Value.Should().Be(model.FirstName);
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.FamilyName)).Value.Should().Be(model.LastName);
