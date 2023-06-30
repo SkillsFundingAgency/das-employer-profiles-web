@@ -242,4 +242,64 @@ public class UserControllerTests
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailClaimValue);
         authenticationService.Verify(x=>x.SignInAsync(httpContext, CookieAuthenticationDefaults.AuthenticationScheme, httpContext.User, null));
     }
+    
+    [Test, MoqAutoData]
+    public async Task When_Valid_Model_And_Auth_Is_Given_AccountService_Called_Claims_Added_And_Return_Redirect_To_RegisterNew_In_Employer_Accounts_When_Invalid_CorrelationId(
+        string emailClaimValue,
+        string nameClaimValue,
+        string userId,
+        string firstName,
+        string lastName,
+        string correlationId,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Frozen] Mock<IEmployerAccountService> employerAccountService,
+        [Frozen] Mock<IAuthenticationService> authenticationService,
+        [Frozen] Mock<IServiceProvider> serviceProviderMock,
+        [Greedy] UserController controller)
+    {
+        // arrange
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+        var model = new AddUserDetailsModel
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            CorrelationId = correlationId.ToString()
+        };
+        serviceProviderMock
+            .Setup(_ => _.GetService(typeof(IAuthenticationService)))
+            .Returns(authenticationService.Object);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Email, emailClaimValue),
+                new Claim(ClaimTypes.NameIdentifier, nameClaimValue),
+                new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, userId)
+            })}),
+            RequestServices = serviceProviderMock.Object
+        };
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+        
+        // sut
+        var actual = await controller.AddUserDetails(model);
+
+        // assert
+        if (actual is RedirectResult result)
+            _ = result.Url.Should().BeEquivalentTo($"https://accounts.test-eas.apprenticeships.education.gov.uk/service/register/new/{correlationId}");
+        employerAccountService.Verify(x=>x.UpsertUserAccount(userId, 
+            It.Is<UpsertAccountRequest>(c=>
+                c.GovIdentifier.Equals(nameClaimValue)
+                && c.FirstName.Equals(model.FirstName)
+                && c.LastName.Equals(model.LastName)
+                && !c.CorrelationId.HasValue
+                )), Times.Once);
+        httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.GivenName)).Value.Should().Be(model.FirstName);
+        httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.FamilyName)).Value.Should().Be(model.LastName);
+        httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailClaimValue);
+        authenticationService.Verify(x=>x.SignInAsync(httpContext, CookieAuthenticationDefaults.AuthenticationScheme, httpContext.User, null));
+    }
 }

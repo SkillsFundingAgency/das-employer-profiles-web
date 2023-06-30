@@ -103,7 +103,7 @@ public class UserController : Controller
             Email = email,
             LastName = model.LastName,
             GovIdentifier = govIdentifier,
-            CorrelationId = correlationId
+            CorrelationId = correlationId == Guid.Empty ? null : correlationId
         });
 
 
