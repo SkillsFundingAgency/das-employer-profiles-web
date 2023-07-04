@@ -10,5 +10,7 @@ namespace SFA.DAS.Employer.Profiles.Domain.Models
         public string LastName { get; set; }
         [Required]
         public string GovIdentifier { get; set; }
+
+        public Guid? CorrelationId { get; set; }
     }
 }

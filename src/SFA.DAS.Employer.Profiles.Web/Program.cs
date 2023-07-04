@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using SFA.DAS.Employer.Profiles.Domain.Configuration;
@@ -47,11 +46,8 @@ builder.Services.Configure<RouteOptions>(options =>
 });
 
 
-if (!builder.Environment.IsDevelopment())
-{
-    builder.Services.AddDataProtection(rootConfiguration);
+builder.Services.AddDataProtection(rootConfiguration);
     
-}
 builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();

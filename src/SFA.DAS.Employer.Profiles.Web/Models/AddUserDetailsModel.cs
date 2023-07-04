@@ -13,6 +13,8 @@ namespace SFA.DAS.Employer.Profiles.Web.Models
         [MinLength(1)]
         public string LastName { get; set; } = string.Empty;
 
+        public string? CorrelationId { get; set; }
+        
         public string FirstNameError => GetErrorMessage(nameof(FirstName));
         public string LastNameError => GetErrorMessage(nameof(LastName));
         public string TermsOfUseLink { get; set; } = string.Empty;

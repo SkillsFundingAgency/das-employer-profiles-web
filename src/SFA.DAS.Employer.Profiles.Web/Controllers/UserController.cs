@@ -10,6 +10,8 @@ using SFA.DAS.Employer.Shared.UI.Attributes;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
 using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Extensions;
 
@@ -27,6 +29,7 @@ public class UserController : Controller
         _configuration = configuration;
         _accountsService = accountsService;
     }
+    
     [SetNavigationSection(NavigationSection.AccountsHome)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]    
     [HttpGet]
@@ -36,17 +39,30 @@ public class UserController : Controller
         var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
         return View(model);
     }
+    
+    [SetNavigationSection(NavigationSection.None)]
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [Route("accounts/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetailsNoAccount)]
+    public IActionResult ChangeSignInDetailsNoAccount()
+    {
+        var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
+        return View("ChangeSignInDetails", model);
+    }
 
     [SetNavigationSection(NavigationSection.None)]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
-    public IActionResult AddUserDetails()
+    public IActionResult AddUserDetails([FromQuery]string firstName = "", [FromQuery]string lastName = "", [FromQuery]string correlationId = "")
     {
         var addUserDetailsModel = new AddUserDetailsModel
         {
+            FirstName = firstName,
+            LastName = lastName,
+            CorrelationId = correlationId,
             TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
         };
+        ModelState.Clear();
         return View(addUserDetailsModel);
     }
     
@@ -68,6 +84,7 @@ public class UserController : Controller
                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
                     ),
                 TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"]),
+                CorrelationId = model.CorrelationId,
                 FirstName = model.FirstName,
                 LastName = model.LastName
             });
@@ -79,12 +96,14 @@ public class UserController : Controller
         var email = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.Email)).Value;
 
         // Add the user details to the repository via Apim.
+        Guid.TryParse(model.CorrelationId, out var correlationId);
         _ = await _accountsService.UpsertUserAccount(userId, new UpsertAccountRequest
         {
             FirstName = model.FirstName,
             Email = email,
             LastName = model.LastName,
-            GovIdentifier = govIdentifier
+            GovIdentifier = govIdentifier,
+            CorrelationId = correlationId == Guid.Empty ? null : correlationId
         });
 
 
@@ -97,7 +116,10 @@ public class UserController : Controller
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
         
-        // re-direct the user to the default home page of manage apprenticeship service.
+        if (!string.IsNullOrEmpty(model.CorrelationId))
+        {
+            return Redirect($"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{model.CorrelationId}");
+        }
         return Redirect(UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"]));
     }
 }
