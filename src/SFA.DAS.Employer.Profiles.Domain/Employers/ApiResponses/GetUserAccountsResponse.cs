@@ -4,7 +4,7 @@ namespace SFA.DAS.Employer.Profiles.Domain.Employers.ApiResponses;
 
 public class GetUserAccountsResponse
 {
-    [JsonPropertyName("IsSuspended")]
+    [JsonPropertyName("isSuspended")]
     public bool IsSuspended { get; set; }
     
     [JsonPropertyName("lastName")]
