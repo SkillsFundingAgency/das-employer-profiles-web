@@ -121,6 +121,7 @@ stages:
   variables:
   - group: MO Management Resources
   - group: MO Shared Resources
+  - group: MO das-employer-profiles-web
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -134,6 +135,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: DEMO DevTest Shared Resources
+  - group: DEMO das-employer-profiles-web
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
