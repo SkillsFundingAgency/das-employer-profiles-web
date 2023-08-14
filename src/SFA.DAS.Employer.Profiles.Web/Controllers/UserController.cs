@@ -70,7 +70,7 @@ public class UserController : Controller
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpPost]
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
-    public async Task<IActionResult> AddUserDetails(AddUserDetailsModel model)
+    public IActionResult AddUserDetails(AddUserDetailsModel model)
     {
         // check if the model state is valid.
         if (!ModelState.IsValid)
@@ -90,6 +90,33 @@ public class UserController : Controller
             });
         }
 
+        return RedirectToRoute(RouteNames.ConfirmUserDetails, new { model.CorrelationId, model.FirstName, model.LastName });
+    }
+
+    [SetNavigationSection(NavigationSection.None)]
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [HttpGet]
+    [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
+    public IActionResult ConfirmUserDetails([FromQuery] string firstName = "", [FromQuery] string lastName = "", [FromQuery] string correlationId = "")
+    {
+        var addUserDetailsModel = new AddUserDetailsModel
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            CorrelationId = correlationId,
+            TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
+        };
+
+        ModelState.Clear();
+        return View(addUserDetailsModel);
+    }
+
+
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [HttpPost]
+    [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
+    public async Task<IActionResult> ConfirmUserDetails(AddUserDetailsModel model)
+    { 
         // read the claims from the ClaimsPrincipal.
         var userId = HttpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value;
         var govIdentifier = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier)).Value;
@@ -115,7 +142,7 @@ public class UserController : Controller
         });
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
-        
+
         if (!string.IsNullOrEmpty(model.CorrelationId))
         {
             return Redirect($"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{model.CorrelationId}");
