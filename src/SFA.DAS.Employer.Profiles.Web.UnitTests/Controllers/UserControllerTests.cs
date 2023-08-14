@@ -13,6 +13,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Controllers;
 
@@ -127,17 +128,17 @@ public class UserControllerTests
     }
 
     [Test, MoqAutoData]
-    public void When_Valid_Model_And_Auth_Is_Given_AccountService_Called_Claims_Added_And_Return_Redirect_To_Employer_Accounts_When_No_CorrelationId(
+    public void When_Valid_Model_And_Auth_Is_Given_AccountService_Called_Claims_Added_And_Return_Redirect_Confirm(
         string emailClaimValue,
         string nameClaimValue,
         string userId,
         string firstName,
         string lastName,
+        [Frozen] Mock<IUrlHelperFactory> urlHelperFactory,
         [Frozen] Mock<IConfiguration> configuration,
-        [Frozen] Mock<IEmployerAccountService> employerAccountService,
         [Frozen] Mock<IAuthenticationService> authenticationService,
         [Frozen] Mock<IServiceProvider> serviceProviderMock,
-        [Greedy] UserController controller)
+        [NoAutoProperties] UserController controller)
     {
         // arrange
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
@@ -149,6 +150,10 @@ public class UserControllerTests
         serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
             .Returns(authenticationService.Object);
+
+        serviceProviderMock
+            .Setup(x => x.GetService(typeof(IUrlHelperFactory)))
+            .Returns(urlHelperFactory.Object);
 
         var httpContext = new DefaultHttpContext
         {

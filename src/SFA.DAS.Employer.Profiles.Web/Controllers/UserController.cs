@@ -90,7 +90,7 @@ public class UserController : Controller
             });
         }
 
-        return RedirectToRoute(RouteNames.ConfirmUserDetails, new { model.CorrelationId, model.FirstName, model.LastName });
+        return RedirectToRoute(RouteNames.ConfirmUserDetails, new { model.FirstName, model.LastName, model.CorrelationId });
     }
 
     [SetNavigationSection(NavigationSection.None)]
