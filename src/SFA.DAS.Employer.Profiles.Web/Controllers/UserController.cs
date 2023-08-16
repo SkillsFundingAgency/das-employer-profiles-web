@@ -111,7 +111,6 @@ public class UserController : Controller
         return View(addUserDetailsModel);
     }
 
-
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpPost]
     [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
