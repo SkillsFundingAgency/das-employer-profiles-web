@@ -1,0 +1,40 @@
+﻿@model SFA.DAS.Employer.Profiles.Web.Models.UserDetailsSuccessModel
+
+@{
+    ViewBag.PageID = "page-change-user-detail-success";
+    ViewBag.Title = "User details added";
+    ViewBag.ShowNav = false;
+}
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+            <div class="govuk-notification-banner__header">
+                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                    Success
+                </h2>
+            </div>
+            <div class="govuk-notification-banner__content">
+                <p class="govuk-notification-banner__heading">
+                    @ViewBag.Title
+                </p>
+            </div>
+        </div>
+        <h1 class="govuk-heading-xl">You've successfully added user details</h1>
+        <p class="govuk-body">You need to complete setting up the account for your organisation.</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li>adding your organisation and PAYE scheme</li>
+            <li>setting your account name</li>
+            <li>accepting the employer agreement</li>
+            <li>adding a training provider</li>
+        </ul>
+
+        <p class="govuk-body">You can continue to do this now or at a later date.</p>
+
+        <div class="govuk-button-group">
+            <a href="@Model.AccountReturnUrl" class="govuk-button" role="button" draggable="false" data-module="govuk-button">Continue</a>
+            <a href="@Model.AccountSaveAndComeBackLaterUrl" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                Save and come back later
+            </a>
+        </div>
+    </div>
+</div>

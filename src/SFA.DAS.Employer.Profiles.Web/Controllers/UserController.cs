@@ -1,19 +1,16 @@
-using System.Net;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
+using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
+using SFA.DAS.Employer.Profiles.Web.Extensions;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.AspNetCore.DataProtection;
-using SFA.DAS.Employer.Profiles.Domain.Models;
-using SFA.DAS.Employer.Profiles.Web.Extensions;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
@@ -29,9 +26,9 @@ public class UserController : Controller
         _configuration = configuration;
         _accountsService = accountsService;
     }
-    
+
     [SetNavigationSection(NavigationSection.AccountsHome)]
-    [Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]    
+    [Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]
     [HttpGet]
     [Route("accounts/{employerAccountId}/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetails)]
     public IActionResult ChangeSignInDetails()
@@ -39,7 +36,7 @@ public class UserController : Controller
         var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
         return View(model);
     }
-    
+
     [SetNavigationSection(NavigationSection.None)]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [Route("accounts/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetailsNoAccount)]
@@ -53,7 +50,7 @@ public class UserController : Controller
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
-    public IActionResult AddUserDetails([FromQuery]string firstName = "", [FromQuery]string lastName = "", [FromQuery]string correlationId = "")
+    public IActionResult AddUserDetails([FromQuery] string firstName = "", [FromQuery] string lastName = "", [FromQuery] string correlationId = "")
     {
         var addUserDetailsModel = new AddUserDetailsModel
         {
@@ -65,8 +62,8 @@ public class UserController : Controller
         ModelState.Clear();
         return View(addUserDetailsModel);
     }
-    
-    
+
+
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpPost]
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
@@ -78,7 +75,7 @@ public class UserController : Controller
             return View(new AddUserDetailsModel
             {
                 ErrorDictionary = ModelState
-                    .Where(x => x.Value is {Errors.Count: > 0})
+                    .Where(x => x.Value is { Errors.Count: > 0 })
                     .ToDictionary(
                         kvp => kvp.Key,
                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
@@ -114,7 +111,7 @@ public class UserController : Controller
     [HttpPost]
     [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
     public async Task<IActionResult> ConfirmUserDetails(AddUserDetailsModel model)
-    { 
+    {
         // read the claims from the ClaimsPrincipal.
         var userId = HttpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserIdClaimTypeIdentifier)).Value;
         var govIdentifier = HttpContext.User.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier)).Value;
@@ -145,6 +142,21 @@ public class UserController : Controller
         {
             return Redirect($"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{model.CorrelationId}");
         }
-        return Redirect(UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"]));
+
+        return RedirectToRoute(RouteNames.UserDetailsSuccess);
+    }
+
+    [SetNavigationSection(NavigationSection.None)]
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [HttpGet]
+    [Route("[controller]/user-details-success", Name = RouteNames.UserDetailsSuccess)]
+    public IActionResult UserDetailsSuccess([FromQuery] string correlationId = "")
+    {
+        return View(new UserDetailsSuccessModel
+        {
+            CorrelationId = correlationId,
+            AccountReturnUrl = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}",
+            AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(_configuration["ResourceEnvironmentName"])
+        });
     }
 }

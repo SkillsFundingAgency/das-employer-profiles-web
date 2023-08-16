@@ -376,4 +376,24 @@ public class UserControllerTests
         httpContext.User.Claims.First(c => c.Type.Equals(EmployerClaims.IdamsUserEmailClaimTypeIdentifier)).Value.Should().Be(emailClaimValue);
         authenticationService.Verify(x => x.SignInAsync(httpContext, CookieAuthenticationDefaults.AuthenticationScheme, httpContext.User, null));
     }
+
+    [Test, MoqAutoData]
+    public void Then_Account_Success_Continue_Urls_Are_Set(
+        string correlationId,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
+
+        var actual = controller.UserDetailsSuccess(correlationId);
+
+        Assert.IsNotNull(actual);
+        var actualViewResult = actual as ViewResult;
+        Assert.IsNotNull(actualViewResult);
+        var actualModel = actualViewResult!.Model as UserDetailsSuccessModel;
+        Assert.IsNotNull(actualModel);
+        actualModel!.CorrelationId.Should().Be(correlationId);
+        actualModel.AccountSaveAndComeBackLaterUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/accounts/create/progress-saved");
+        actualModel.AccountReturnUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/index");
+    }
 }

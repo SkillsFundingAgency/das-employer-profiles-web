@@ -28,6 +28,11 @@ public static class UrlRedirectionExtensions
         return $"{GetBaseUrl(environmentName)}service/register/new";
     }
 
+    public static string GetProgressSavedUrl(string environmentName)
+    {
+        return $"{GetBaseUrl(environmentName)}accounts/create/progress-saved";
+    }
+
     private static string GetBaseUrl(string environment)
     {
         var environmentPart = environment.ToLower() == "prd" ? "manage-apprenticeships" : $"{environment.ToLower()}-eas.apprenticeships";
