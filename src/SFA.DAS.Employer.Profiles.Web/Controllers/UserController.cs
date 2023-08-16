@@ -99,12 +99,11 @@ public class UserController : Controller
     [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
     public IActionResult ConfirmUserDetails([FromQuery] string firstName = "", [FromQuery] string lastName = "", [FromQuery] string correlationId = "")
     {
-        var addUserDetailsModel = new AddUserDetailsModel
+        var addUserDetailsModel = new ConfirmUserDetailsModel
         {
             FirstName = firstName,
             LastName = lastName,
-            CorrelationId = correlationId,
-            TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
+            CorrelationId = correlationId
         };
 
         ModelState.Clear();
