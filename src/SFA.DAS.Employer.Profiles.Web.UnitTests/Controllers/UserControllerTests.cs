@@ -192,12 +192,11 @@ public class UserControllerTests
         Assert.IsNotNull(actual);
         var actualViewResult = actual as ViewResult;
         Assert.IsNotNull(actualViewResult);
-        var actualModel = actualViewResult!.Model as AddUserDetailsModel;
+        var actualModel = actualViewResult!.Model as ConfirmUserDetailsModel;
         Assert.IsNotNull(actualModel);
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
-        actualModel.TermsOfUseLink.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/termsAndConditions/overview");
     }
 
     [Test, MoqAutoData]
@@ -211,7 +210,7 @@ public class UserControllerTests
         [Frozen] Mock<IEmployerAccountService> employerAccountService,
         [Frozen] Mock<IAuthenticationService> authenticationService,
         [Frozen] Mock<IServiceProvider> serviceProviderMock,
-        [Greedy] UserController controller)
+        [NoAutoProperties] UserController controller)
     {
         // arrange
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
@@ -220,6 +219,9 @@ public class UserControllerTests
             FirstName = firstName,
             LastName = lastName,
         };
+
+        controller.Url = Mock.Of<IUrlHelper>();
+        
         serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
             .Returns(authenticationService.Object);
