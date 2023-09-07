@@ -12,6 +12,12 @@
         { "CorrelationId", Model.CorrelationId ?? string.Empty }
     };
 }
+
+@section breadcrumb
+{
+    <div class="das-js-back-link"></div>
+}
+
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <partial model="@ViewData.ModelState" name="_ValidationSummary" />
