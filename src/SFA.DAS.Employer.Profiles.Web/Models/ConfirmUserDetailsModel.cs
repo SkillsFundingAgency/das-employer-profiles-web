@@ -5,5 +5,6 @@
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string? CorrelationId { get; set; }
+        public string ChangeRoute { get; set; }
     }
 }

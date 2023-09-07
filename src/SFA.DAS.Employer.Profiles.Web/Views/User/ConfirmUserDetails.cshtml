@@ -33,7 +33,7 @@
                         @Model.FirstName
                     </td>
                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a asp-route="@RouteNames.AddUserDetails" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
+                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
                     </td>
                 </tr>
                 <tr class="govuk-table__row">
@@ -44,7 +44,7 @@
                         @Model.LastName
                     </td>
                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a asp-route="@RouteNames.AddUserDetails" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
+                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
                     </td>
                 </tr>
             </tbody>

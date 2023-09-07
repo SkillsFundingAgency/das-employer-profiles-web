@@ -176,6 +176,116 @@ public class UserControllerTests
         // assert
         actual.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
     }
+    
+    [Test, MoqAutoData]
+    public void When_Edit_Then_The_FirstName_LastName_And_CorrelationId_Are_Passed_To_The_View(
+        string firstName,
+        string lastName,
+        string correlationId,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
+
+        var actual = controller.EditUserDetails(firstName, lastName, correlationId);
+        
+        Assert.IsNotNull(actual);
+        var actualViewResult = actual as ViewResult;
+        Assert.IsNotNull(actualViewResult);
+        var actualModel = actualViewResult!.Model as EditUserDetailsModel;
+        Assert.IsNotNull(actualModel);
+        actualModel!.FirstName.Should().Be(firstName);
+        actualModel!.LastName.Should().Be(lastName);
+        actualModel!.CorrelationId.Should().Be(correlationId);
+        actualModel.CancelLink.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/index");
+    }
+    
+    [Test, MoqAutoData]
+    public void When_Edit_Invalid_Model_And_Auth_Is_Given_Throw_Invalid_ModelState(
+        string emailClaimValue,
+        string nameClaimValue,
+        string errorMessage,
+        EditUserDetailsModel model,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Greedy] UserController controller)
+    {
+        // arrange
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Email, emailClaimValue),
+                new Claim(ClaimTypes.NameIdentifier, nameClaimValue)
+            })})
+        };
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+        controller.ModelState.AddModelError(nameof(model.FirstName), errorMessage);
+        controller.ModelState.AddModelError(nameof(model.LastName), errorMessage);
+
+
+        // sut
+        var actual = (ViewResult)controller.EditUserDetails(model);
+
+        // assert
+        actual.Should().NotBeNull();
+        var actualModel = actual.Model as EditUserDetailsModel;
+        actualModel.FirstNameError.Length.Should().BeGreaterThanOrEqualTo(1);
+        actualModel.LastNameError.Length.Should().BeGreaterThanOrEqualTo(1);
+    }
+
+    [Test, MoqAutoData]
+    public void When_Edit_Valid_Model_And_Auth_Is_Given_AccountService_Called_Claims_Added_And_Return_Redirect_Confirm(
+        string emailClaimValue,
+        string nameClaimValue,
+        string userId,
+        string firstName,
+        string lastName,
+        [Frozen] Mock<IUrlHelperFactory> urlHelperFactory,
+        [Frozen] Mock<IConfiguration> configuration,
+        [Frozen] Mock<IAuthenticationService> authenticationService,
+        [Frozen] Mock<IServiceProvider> serviceProviderMock,
+        [NoAutoProperties] UserController controller)
+    {
+        // arrange
+        configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
+        var model = new EditUserDetailsModel
+        {
+            FirstName = firstName,
+            LastName = lastName,
+        };
+        serviceProviderMock
+            .Setup(_ => _.GetService(typeof(IAuthenticationService)))
+            .Returns(authenticationService.Object);
+
+        serviceProviderMock
+            .Setup(x => x.GetService(typeof(IUrlHelperFactory)))
+            .Returns(urlHelperFactory.Object);
+
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.Email, emailClaimValue),
+                new Claim(ClaimTypes.NameIdentifier, nameClaimValue),
+                new Claim(EmployerClaims.IdamsUserIdClaimTypeIdentifier, userId)
+            })}),
+            RequestServices = serviceProviderMock.Object
+        };
+        controller.ControllerContext = new ControllerContext
+        {
+            HttpContext = httpContext
+        };
+        
+        // sut
+        var actual = controller.EditUserDetails(model) as RedirectToRouteResult;
+
+        // assert
+        actual.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
+    }
 
     [Test, MoqAutoData]
     public void Then_The_FirstName_LastName_And_CorrelationId_Are_Passed_To_The_Confirm_View(

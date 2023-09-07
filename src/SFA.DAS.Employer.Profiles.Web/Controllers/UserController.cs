@@ -89,22 +89,70 @@ public class UserController : Controller
 
         return RedirectToRoute(RouteNames.ConfirmUserDetails, new { model.FirstName, model.LastName, model.CorrelationId });
     }
+    
+    [SetNavigationSection(NavigationSection.None)]
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [HttpGet]
+    [Route("[controller]/edit-user-details", Name = RouteNames.EditUserDetails)]
+    public IActionResult EditUserDetails([FromQuery] string firstName = "", [FromQuery] string lastName = "", [FromQuery] string correlationId = "")
+    {
+        var editUserDetailsModel = new EditUserDetailsModel
+        {
+            FirstName = firstName,
+            LastName = lastName,
+            CorrelationId = correlationId,
+            CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
+        };
+        ModelState.Clear();
+        return View(editUserDetailsModel);
+    }
+    
+    [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
+    [HttpPost]
+    [Route("[controller]/edit-user-details", Name = RouteNames.EditUserDetails)]
+    public IActionResult EditUserDetails(EditUserDetailsModel model)
+    {
+        // check if the model state is valid.
+        if (!ModelState.IsValid)
+        {
+            return View(new EditUserDetailsModel
+            {
+                ErrorDictionary = ModelState
+                    .Where(x => x.Value is { Errors.Count: > 0 })
+                    .ToDictionary(
+                        kvp => kvp.Key,
+                        kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
+                    ),
+                CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}",
+                CorrelationId = model.CorrelationId,
+                FirstName = model.FirstName,
+                LastName = model.LastName
+            });
+        }
+
+        return RedirectToRoute(RouteNames.ConfirmUserDetails, new { model.FirstName, model.LastName, model.CorrelationId, isEdit = true });
+    }
 
     [SetNavigationSection(NavigationSection.None)]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
     [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
-    public IActionResult ConfirmUserDetails([FromQuery] string firstName = "", [FromQuery] string lastName = "", [FromQuery] string correlationId = "")
-    {
-        var addUserDetailsModel = new ConfirmUserDetailsModel
+    public IActionResult ConfirmUserDetails(
+        [FromQuery] string firstName = "", 
+        [FromQuery] string lastName = "", 
+        [FromQuery] string correlationId = "",
+        [FromQuery] bool isEdit = false)
+    {   
+        var confirmUserDetailsModel = new ConfirmUserDetailsModel
         {
             FirstName = firstName,
             LastName = lastName,
-            CorrelationId = correlationId
+            CorrelationId = correlationId,
+            ChangeRoute = isEdit ? RouteNames.EditUserDetails : RouteNames.AddUserDetails
         };
 
         ModelState.Clear();
-        return View(addUserDetailsModel);
+        return View(confirmUserDetailsModel);
     }
 
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
