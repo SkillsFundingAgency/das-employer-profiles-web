@@ -186,11 +186,6 @@ public class UserController : Controller
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
 
-        if (!string.IsNullOrEmpty(model.CorrelationId))
-        {
-            return Redirect($"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{model.CorrelationId}");
-        }
-
         return RedirectToRoute(RouteNames.UserDetailsSuccess);
     }
 
@@ -200,10 +195,14 @@ public class UserController : Controller
     [Route("[controller]/user-details-success", Name = RouteNames.UserDetailsSuccess)]
     public IActionResult UserDetailsSuccess([FromQuery] string correlationId = "")
     {
+        var returnUrl = string.IsNullOrEmpty(correlationId)
+            ? $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
+            : $"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{correlationId}";
+        
         return View(new UserDetailsSuccessModel
         {
             CorrelationId = correlationId,
-            AccountReturnUrl = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}",
+            AccountReturnUrl = returnUrl,
             AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(_configuration["ResourceEnvironmentName"])
         });
     }
