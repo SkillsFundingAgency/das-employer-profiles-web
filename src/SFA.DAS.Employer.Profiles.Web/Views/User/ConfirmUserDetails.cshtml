@@ -1,0 +1,69 @@
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using SFA.DAS.Employer.Profiles.Web.Infrastructure
+@model SFA.DAS.Employer.Profiles.Web.Models.ConfirmUserDetailsModel
+@{
+    Layout = "_Layout";
+    ViewBag.ShowNav = false;
+    ViewBag.Title = "Confirm your user details";
+    var routeData = new Dictionary<string, string>
+    {
+        { "FirstName", Model.FirstName },
+        { "LastName", Model.LastName },
+        { "CorrelationId", Model.CorrelationId ?? string.Empty }
+    };
+}
+
+@section breadcrumb
+{
+    <div class="das-js-back-link"></div>
+}
+
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <partial model="@ViewData.ModelState" name="_ValidationSummary" />
+    </div>
+</div>
+<div class="govuk-grid-row">
+    <div class="govuk-grid-column-two-thirds">
+        <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
+
+        <p class="govuk-body">You can change your user details at any time.</p>
+
+        <table class="govuk-table">
+            <tbody class="govuk-table__body">
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">
+                        First name
+                    </th>
+                    <td class="govuk-table__cell">
+                        @Model.FirstName
+                    </td>
+                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
+                    </td>
+                </tr>
+                <tr class="govuk-table__row">
+                    <th scope="row" class="govuk-table__header">
+                        Last name
+                    </th>
+                    <td class="govuk-table__cell">
+                        @Model.LastName
+                    </td>
+                    <td class="govuk-table__cell govuk-table__cell--numeric">
+                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <form method="POST">
+            <input asp-for="CorrelationId" type="hidden" />
+            <input asp-for="FirstName" type="hidden" />
+            <input asp-for="LastName" type="hidden" />
+
+            <div class="govuk-button-group">
+                <button class="govuk-button" type="submit">Continue</button>
+            </div>
+        </form>
+    </div>
+</div>
