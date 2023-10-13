@@ -6,5 +6,6 @@
         public string LastName { get; set; } = string.Empty;
         public string? CorrelationId { get; set; }
         public string ChangeRoute { get; set; }
+        public bool IsEdit { get; set; } = false;
     }
 }

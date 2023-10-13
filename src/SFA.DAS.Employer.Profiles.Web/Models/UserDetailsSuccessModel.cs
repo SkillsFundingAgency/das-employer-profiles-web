@@ -5,5 +5,6 @@
         public string AccountReturnUrl { get; set; }
         public string AccountSaveAndComeBackLaterUrl { get; set; }
         public string? CorrelationId { get; set; }
+        public bool IsEdit { get; set; } = false;
     }
 }
