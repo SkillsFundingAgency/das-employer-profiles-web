@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using SFA.DAS.Employer.Profiles.Domain.Configuration;
 using SFA.DAS.Employer.Profiles.Web.AppStart;
 using SFA.DAS.Employer.Profiles.Web.Extensions;
+using SFA.DAS.Employer.Profiles.Web.Filters;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.GovUK.Auth.AppStart;
@@ -37,7 +38,7 @@ builder.Services.Configure<RouteOptions>(options =>
                 
 }).AddMvc(options =>
 {
-    //options.Filters.Add(new GoogleAnalyticsFilter());
+    options.Filters.Add(new AnalyticsFilterAttribute());
     if (!rootConfiguration.IsDev())
     {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());    
