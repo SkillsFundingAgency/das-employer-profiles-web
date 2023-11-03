@@ -288,16 +288,17 @@ public class UserControllerTests
     }
 
     [Test, MoqAutoData]
-    public void Then_The_FirstName_LastName_And_CorrelationId_Are_Passed_To_The_Confirm_View(
+    public void Then_The_FirstName_LastName_And_CorrelationId_And_IsEdit_Are_Passed_To_The_Confirm_View(
         string firstName,
         string lastName,
         string correlationId,
+        bool isEdit,
         [Frozen] Mock<IConfiguration> configuration,
         [Greedy] UserController controller)
     {
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
 
-        var actual = controller.ConfirmUserDetails(firstName, lastName, correlationId);
+        var actual = controller.ConfirmUserDetails(firstName, lastName, correlationId, isEdit);
 
         Assert.IsNotNull(actual);
         var actualViewResult = actual as ViewResult;
@@ -307,6 +308,8 @@ public class UserControllerTests
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
+        actualModel!.IsEdit.Should().Be(isEdit);
+
     }
 
     [Test, MoqAutoData]
@@ -374,18 +377,19 @@ public class UserControllerTests
 
 
     [Test]
-    [MoqInlineAutoData(null, "https://accounts.manage-apprenticeships.service.gov.uk/service/index")]
-    [MoqInlineAutoData("", "https://accounts.manage-apprenticeships.service.gov.uk/service/index")]
-    [MoqInlineAutoData("correlationId-ab926815-0573-4ea9-89d1-28a6bab2f338", "https://accounts.manage-apprenticeships.service.gov.uk/service/register/new/correlationId-ab926815-0573-4ea9-89d1-28a6bab2f338")]
+    [MoqInlineAutoData(null, true, "https://accounts.manage-apprenticeships.service.gov.uk/service/index")]
+    [MoqInlineAutoData("", false, "https://accounts.manage-apprenticeships.service.gov.uk/service/index")]
+    [MoqInlineAutoData("correlationId-ab926815-0573-4ea9-89d1-28a6bab2f338", null, "https://accounts.manage-apprenticeships.service.gov.uk/service/register/new/correlationId-ab926815-0573-4ea9-89d1-28a6bab2f338")]
     public void Then_Account_Success_Continue_Urls_Are_Set(
         string correlationId,
+        bool isEdit,
         string expectedReturnUrl,
         [Frozen] Mock<IConfiguration> configuration,
         [Greedy] UserController controller)
     {
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
 
-        var actual = controller.UserDetailsSuccess(correlationId);
+        var actual = controller.UserDetailsSuccess(correlationId, isEdit);
 
         Assert.IsNotNull(actual);
         var actualViewResult = actual as ViewResult;
@@ -393,6 +397,7 @@ public class UserControllerTests
         var actualModel = actualViewResult!.Model as UserDetailsSuccessModel;
         Assert.IsNotNull(actualModel);
         actualModel!.CorrelationId.Should().Be(correlationId);
+        actualModel.IsEdit.Should().Be(isEdit);
         actualModel.AccountSaveAndComeBackLaterUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/accounts/create/progress-saved");
         actualModel.AccountReturnUrl.Should().Be(expectedReturnUrl);
     }
