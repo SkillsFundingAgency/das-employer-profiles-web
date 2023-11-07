@@ -148,7 +148,8 @@ public class UserController : Controller
             FirstName = firstName,
             LastName = lastName,
             CorrelationId = correlationId,
-            ChangeRoute = isEdit ? RouteNames.EditUserDetails : RouteNames.AddUserDetails
+            ChangeRoute = isEdit ? RouteNames.EditUserDetails : RouteNames.AddUserDetails,
+            IsEdit = isEdit
         };
 
         ModelState.Clear();
@@ -186,14 +187,14 @@ public class UserController : Controller
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
 
-        return RedirectToRoute(RouteNames.UserDetailsSuccess);
+        return RedirectToRoute(RouteNames.UserDetailsSuccess, new {model.IsEdit});
     }
 
     [SetNavigationSection(NavigationSection.None)]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
     [Route("[controller]/user-details-success", Name = RouteNames.UserDetailsSuccess)]
-    public IActionResult UserDetailsSuccess([FromQuery] string correlationId = "")
+    public IActionResult UserDetailsSuccess([FromQuery] string correlationId = "", [FromQuery] bool isEdit = false)
     {
         var returnUrl = string.IsNullOrEmpty(correlationId)
             ? $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
@@ -203,7 +204,8 @@ public class UserController : Controller
         {
             CorrelationId = correlationId,
             AccountReturnUrl = returnUrl,
-            AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(_configuration["ResourceEnvironmentName"])
+            AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(_configuration["ResourceEnvironmentName"]),
+            IsEdit = isEdit
         });
     }
 }
