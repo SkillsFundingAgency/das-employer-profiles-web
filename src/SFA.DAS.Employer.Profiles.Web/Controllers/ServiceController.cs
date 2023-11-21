@@ -24,6 +24,7 @@ public class ServiceController : Controller
         _configuration = configuration;
         _stubAuthenticationService = stubAuthenticationService;
     }
+    
     [Route("signout", Name = RouteNames.SignOut)]
     public async Task<IActionResult> SignOut()
     {
@@ -71,11 +72,13 @@ public class ServiceController : Controller
         {
             return NotFound();
         }
-        return View("AccountDetails",new StubAuthenticationViewModel
+        
+        return View("AccountDetails", new StubAuthenticationViewModel
         {
             ReturnUrl = returnUrl
         });
     }
+    
     [HttpPost]
     [Route("account-details", Name = RouteNames.StubAccountDetailsPost)]
     public async Task<IActionResult> AccountDetails(StubAuthenticationViewModel model)

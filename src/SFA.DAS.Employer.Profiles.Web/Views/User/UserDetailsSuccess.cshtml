@@ -2,8 +2,9 @@
 
 @{
     ViewBag.PageID = "page-change-user-detail-success";
-    ViewBag.Title = "User details added";
+    ViewBag.Title = Model.IsEdit? "User details changed": "User details added";
     ViewBag.ShowNav = false;
+    ViewBag.GaData.Vpv = "/user/user-details-success";
 }
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
@@ -19,17 +20,26 @@
                 </p>
             </div>
         </div>
-        <h1 class="govuk-heading-xl">You've successfully added user details</h1>
-        <p class="govuk-body">You need to complete setting up the account for your organisation by:</p>
-        <ul class="govuk-list govuk-list--bullet">
-            <li>adding your organisation and PAYE scheme</li>
-            <li>setting your account name</li>
-            <li>accepting the employer agreement</li>
-            <li>adding a training provider</li>
-        </ul>
+        <h1 class="govuk-heading-xl">You have successfully @(Model.IsEdit? "changed": "added") user details</h1>
+        
+        @if (Model.IsEdit)
+        {   
+            <p class="govuk-body">You can change your user details at any time.</p>
+            <p class="govuk-body">Continue to create your account.</p>
+        }
+        else
+        {
+            <p class="govuk-body">You need to complete setting up the account for your organisation by:</p>
+            <ul class="govuk-list govuk-list--bullet">
+                <li>adding your organisation and PAYE scheme</li>
+                <li>setting your account name</li>
+                <li>accepting the employer agreement</li>
+                <li>adding a training provider</li>
+            </ul>
 
-        <p class="govuk-body">You can continue to do this now or at a later date.</p>
-
+            <p class="govuk-body">You can continue to do this now or at a later date.</p>
+        }        
+       
         <div class="govuk-button-group">
             <a href="@Model.AccountReturnUrl" class="govuk-button" role="button" draggable="false" data-module="govuk-button">Continue</a>
             <a href="@Model.AccountSaveAndComeBackLaterUrl" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">

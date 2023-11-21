@@ -5,6 +5,7 @@
     Layout = "_Layout";
     ViewBag.ShowNav = false;
     ViewBag.Title = "Confirm your user details";
+    ViewBag.GaData.Vpv = "/user/confirm-user-details";
     var routeData = new Dictionary<string, string>
     {
         { "FirstName", Model.FirstName },
@@ -60,6 +61,7 @@
             <input asp-for="CorrelationId" type="hidden" />
             <input asp-for="FirstName" type="hidden" />
             <input asp-for="LastName" type="hidden" />
+            <input asp-for="IsEdit" type="hidden" />
 
             <div class="govuk-button-group">
                 <button class="govuk-button" type="submit">Continue</button>

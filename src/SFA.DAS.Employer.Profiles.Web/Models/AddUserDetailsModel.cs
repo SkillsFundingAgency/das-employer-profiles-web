@@ -18,5 +18,6 @@ namespace SFA.DAS.Employer.Profiles.Web.Models
         public string FirstNameError => GetErrorMessage(nameof(FirstName));
         public string LastNameError => GetErrorMessage(nameof(LastName));
         public string TermsOfUseLink { get; set; } = string.Empty;
+        public bool IsEdit { get; set; } = false;
     }
 }

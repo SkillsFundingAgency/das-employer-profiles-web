@@ -10,4 +10,8 @@
       <ProjectReference Include="..\SFA.DAS.Employer.Profiles.Domain\SFA.DAS.Employer.Profiles.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
+    </ItemGroup>
+
 </Project>
