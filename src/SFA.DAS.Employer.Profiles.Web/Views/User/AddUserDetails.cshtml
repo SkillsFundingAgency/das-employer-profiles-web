@@ -29,7 +29,7 @@
                 }
                 <input id="FirstName" name="FirstName" type="text" maxlength="100" class="govuk-input govuk-!-width-two-thirds" aria-required="true"
                        aria-describedby="@(!string.IsNullOrEmpty(Model.FirstNameError) ? "error-message-firstname" : "")"
-                       value="@Model.FirstName" />
+                       value="@Model.FirstName" autocomplete="given-name" />
             </div>
             <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.LastNameError) ? "govuk-form-group--error" : "")">
                 <label id="LastName-label" for="LastName" class="govuk-label">
@@ -43,7 +43,7 @@
                 }
                 <input id="LastName" name="LastName" type="text" maxlength="100" class="govuk-input govuk-!-width-two-thirds" aria-required="true"
                        aria-describedby="@(!string.IsNullOrEmpty(Model.LastNameError) ? "error-message-lastname" : "")"
-                       value="@Model.LastName" />
+                       value="@Model.LastName" autocomplete="family-name" />
             </div>
 
 
