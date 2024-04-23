@@ -53,7 +53,9 @@
     </partial>
 
     <div class="govuk-width-container">
-        @RenderSection("breadcrumb", required: false)
+        <nav title="Journey navigation">
+            @RenderSection("breadcrumb", required: false)
+        </nav>
         <main class="govuk-main-wrapper" id="main-content" role="main">
             @RenderBody()
         </main>
