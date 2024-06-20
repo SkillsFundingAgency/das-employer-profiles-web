@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using SFA.DAS.Common.Domain.Types;
+using SFA.DAS.Employer.Profiles.Domain.Serialization.Converters;
 
 namespace SFA.DAS.Employer.Profiles.Domain.Employers.ApiResponses;
 
@@ -29,5 +30,6 @@ public class EmployerIdentifier
     [JsonPropertyName("role")]
     public string Role { get; set; }
     [JsonPropertyName("apprenticeshipEmployerType")]
+    [JsonConverter(typeof(ApprenticeshipEmployerTypeConverter))]
     public ApprenticeshipEmployerType ApprenticeshipEmployerType { get; set; }
 }
