@@ -22,14 +22,8 @@
 <div class="govuk-grid-row">
     <div class="govuk-grid-column-two-thirds">
         <partial model="@ViewData.ModelState" name="_ValidationSummary" />
-    </div>
-</div>
-<div class="govuk-grid-row">
-    <div class="govuk-grid-column-two-thirds">
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
-
         <p class="govuk-body">You can change your user details at any time.</p>
-
         <table class="govuk-table">
             <tbody class="govuk-table__body">
                 <tr class="govuk-table__row">
@@ -40,7 +34,7 @@
                         @Model.FirstName
                     </td>
                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
+                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> first name</span></a>
                     </td>
                 </tr>
                 <tr class="govuk-table__row">
@@ -51,7 +45,7 @@
                         @Model.LastName
                     </td>
                     <td class="govuk-table__cell govuk-table__cell--numeric">
-                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> organisation</span></a>
+                        <a asp-route="@Model.ChangeRoute" asp-all-route-data="@routeData" class="govuk-link govuk-link--no-visited-state">Change<span class="govuk-visually-hidden"> last name</span></a>
                     </td>
                 </tr>
             </tbody>

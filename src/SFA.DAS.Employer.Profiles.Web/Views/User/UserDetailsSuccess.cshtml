@@ -10,9 +10,9 @@
     <div class="govuk-grid-column-two-thirds">
         <div class="govuk-notification-banner govuk-notification-banner--success" role="alert" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
             <div class="govuk-notification-banner__header">
-                <h2 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
+                <h1 class="govuk-notification-banner__title" id="govuk-notification-banner-title">
                     Success
-                </h2>
+                </h1>
             </div>
             <div class="govuk-notification-banner__content">
                 <p class="govuk-notification-banner__heading">
@@ -20,7 +20,7 @@
                 </p>
             </div>
         </div>
-        <h1 class="govuk-heading-xl">You have successfully @(Model.IsEdit? "changed": "added") user details</h1>
+        <h2 class="govuk-heading-xl">You have successfully @(Model.IsEdit? "changed": "added") user details</h2>
         
         @if (Model.IsEdit)
         {   
