@@ -22,9 +22,19 @@
         <h1 class="govuk-heading-xl">@ViewBag.Title</h1>
         <form method="POST">
             <input asp-for="CorrelationId" type="hidden" />
+            <input asp-for="OriginalFirstName" type="hidden" />
+            <input asp-for="OriginalLastName" type="hidden" />
+
             <input for="ChangeRoute" value="@RouteNames.EditUserDetails" type="hidden" />
-                        
-            <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.FirstNameError) ? "govuk-form-group--error" : "")">
+
+            <div class="@(!string.IsNullOrEmpty(Model.HasNoChangeError) ? "govuk-form-group--error" : "")">
+                @if (!string.IsNullOrEmpty(Model.HasNoChangeError))
+                {
+                    <span id="error-message-nochange" class="govuk-error-message">
+                        <span class="govuk-visually-hidden">Error:</span> @Model.HasNoChangeError
+                    </span>
+                }
+                <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.FirstNameError) ? "govuk-form-group--error" : "")">
                 <label id="FirstName-label" for="FirstName" class="govuk-label">
                     First name
                 </label>
@@ -37,22 +47,22 @@
                 <input id="FirstName" name="FirstName" type="text" maxlength="100" class="govuk-input govuk-!-width-two-thirds" aria-required="true"
                        aria-describedby="@(!string.IsNullOrEmpty(Model.FirstNameError) ? "error-message-firstname" : "")"
                        value="@Model.FirstName" />
+                </div>
+                <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.LastNameError) ? "govuk-form-group--error" : "")">
+                    <label id="LastName-label" for="LastName" class="govuk-label">
+                        Last name
+                    </label>
+                    @if (!string.IsNullOrEmpty(Model.LastNameError))
+                    {
+                        <span id="error-message-lastname" class="govuk-error-message">
+                            <span class="govuk-visually-hidden">Error:</span> @Model.LastNameError
+                        </span>
+                    }
+                    <input id="LastName" name="LastName" type="text" maxlength="100" class="govuk-input govuk-!-width-two-thirds" aria-required="true"
+                           aria-describedby="@(!string.IsNullOrEmpty(Model.LastNameError) ? "error-message-lastname" : "")"
+                           value="@Model.LastName" />
+                </div>
             </div>
-            <div class="govuk-form-group @(!string.IsNullOrEmpty(Model.LastNameError) ? "govuk-form-group--error" : "")">
-                <label id="LastName-label" for="LastName" class="govuk-label">
-                    Last name
-                </label>
-                @if (!string.IsNullOrEmpty(Model.LastNameError))
-                {
-                    <span id="error-message-lastname" class="govuk-error-message">
-                        <span class="govuk-visually-hidden">Error:</span> @Model.LastNameError
-                    </span>
-                }
-                <input id="LastName" name="LastName" type="text" maxlength="100" class="govuk-input govuk-!-width-two-thirds" aria-required="true"
-                       aria-describedby="@(!string.IsNullOrEmpty(Model.LastNameError) ? "error-message-lastname" : "")"
-                       value="@Model.LastName" />
-            </div>
-
 
             <p class="govuk-body govuk-!-margin-top-8 govuk-!-margin-bottom-8">
                 If you do not want to change your user details, select cancel.

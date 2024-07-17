@@ -89,7 +89,7 @@ public class UserController : Controller
 
         return RedirectToRoute(RouteNames.ConfirmUserDetails, new { model.FirstName, model.LastName, model.CorrelationId });
     }
-    
+
     [SetNavigationSection(NavigationSection.None)]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpGet]
@@ -100,18 +100,26 @@ public class UserController : Controller
         {
             FirstName = firstName,
             LastName = lastName,
+            OriginalFirstName = firstName,
+            OriginalLastName = lastName,
             CorrelationId = correlationId,
             CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
         };
         ModelState.Clear();
         return View(editUserDetailsModel);
     }
-    
+
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpPost]
     [Route("[controller]/edit-user-details", Name = RouteNames.EditUserDetails)]
     public IActionResult EditUserDetails(EditUserDetailsModel model)
     {
+        var noChangeHasBeenMade = model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName;
+        if (noChangeHasBeenMade)
+        {
+            ModelState.AddModelError(nameof(model.HasNoChange), "You haven't made any changes to your user details");
+        }
+
         // check if the model state is valid.
         if (!ModelState.IsValid)
         {
@@ -126,7 +134,10 @@ public class UserController : Controller
                 CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}",
                 CorrelationId = model.CorrelationId,
                 FirstName = model.FirstName,
-                LastName = model.LastName
+                LastName = model.LastName,
+                OriginalFirstName = model.OriginalFirstName,
+                OriginalLastName = model.OriginalLastName,
+                HasNoChange = noChangeHasBeenMade
             });
         }
 
@@ -138,11 +149,11 @@ public class UserController : Controller
     [HttpGet]
     [Route("[controller]/confirm-user-details", Name = RouteNames.ConfirmUserDetails)]
     public IActionResult ConfirmUserDetails(
-        [FromQuery] string firstName = "", 
-        [FromQuery] string lastName = "", 
+        [FromQuery] string firstName = "",
+        [FromQuery] string lastName = "",
         [FromQuery] string correlationId = "",
         [FromQuery] bool isEdit = false)
-    {   
+    {
         var confirmUserDetailsModel = new ConfirmUserDetailsModel
         {
             FirstName = firstName,
@@ -187,7 +198,7 @@ public class UserController : Controller
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
 
-        return RedirectToRoute(RouteNames.UserDetailsSuccess, new {model.IsEdit});
+        return RedirectToRoute(RouteNames.UserDetailsSuccess, new { model.IsEdit });
     }
 
     [SetNavigationSection(NavigationSection.None)]
@@ -199,7 +210,7 @@ public class UserController : Controller
         var returnUrl = string.IsNullOrEmpty(correlationId)
             ? $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
             : $"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{correlationId}";
-        
+
         return View(new UserDetailsSuccessModel
         {
             CorrelationId = correlationId,
