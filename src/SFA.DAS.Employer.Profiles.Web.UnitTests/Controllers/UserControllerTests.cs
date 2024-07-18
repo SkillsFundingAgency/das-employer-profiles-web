@@ -30,7 +30,7 @@ public class UserControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
-        Assert.AreEqual("https://home.integration.account.gov.uk/settings", actualModel?.SettingsLink);
+        actualModel?.SettingsLink.Should().BeEquivalentTo("https://home.integration.account.gov.uk/settings");
     }
 
     [Test, MoqAutoData]
@@ -44,7 +44,7 @@ public class UserControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
-        Assert.AreEqual("https://home.integration.account.gov.uk/settings", actualModel?.SettingsLink);
+        actualModel?.SettingsLink.Should().BeEquivalentTo("https://home.integration.account.gov.uk/settings");
     }
 
     [Test, MoqAutoData]
@@ -59,11 +59,11 @@ public class UserControllerTests
 
         var actual = controller.AddUserDetails(firstName, lastName, correlationId);
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as AddUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
@@ -79,11 +79,11 @@ public class UserControllerTests
 
         var actual = controller.AddUserDetails();
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as AddUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().BeNullOrEmpty();
         actualModel!.LastName.Should().BeNullOrEmpty();
         actualModel!.CorrelationId.Should().BeNullOrEmpty();
@@ -189,11 +189,11 @@ public class UserControllerTests
 
         var actual = controller.EditUserDetails(firstName, lastName, correlationId);
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as EditUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.OriginalFirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
@@ -309,11 +309,11 @@ public class UserControllerTests
 
         var actual = controller.ConfirmUserDetails(firstName, lastName, correlationId, isEdit);
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as ConfirmUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
@@ -400,11 +400,11 @@ public class UserControllerTests
 
         var actual = controller.UserDetailsSuccess(correlationId, isEdit);
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as UserDetailsSuccessModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.CorrelationId.Should().Be(correlationId);
         actualModel.IsEdit.Should().Be(isEdit);
         actualModel.AccountSaveAndComeBackLaterUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/accounts/create/progress-saved");
