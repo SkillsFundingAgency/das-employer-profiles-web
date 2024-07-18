@@ -117,7 +117,7 @@ public class UserController : Controller
         var noChangeHasBeenMade = model.FirstName == model.OriginalFirstName && model.LastName == model.OriginalLastName;
         if (noChangeHasBeenMade)
         {
-            ModelState.AddModelError(nameof(model.HasNoChange), "You haven't made any changes to your user details");
+            ModelState.AddModelError(nameof(model.HasNoChange), "Make changes to user details or select ‘Cancel’");
         }
 
         // check if the model state is valid.
