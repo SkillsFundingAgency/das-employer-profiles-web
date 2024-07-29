@@ -1,19 +1,19 @@
+using System.Security.Claims;
 using AutoFixture.NUnit3;
 using FluentAssertions;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Controllers;
+using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
 using SFA.DAS.Testing.AutoFixture;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using SFA.DAS.Employer.Profiles.Web.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Controllers;
 
@@ -30,9 +30,9 @@ public class UserControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
-        Assert.AreEqual("https://home.integration.account.gov.uk/settings", actualModel?.SettingsLink);
+        actualModel?.SettingsLink.Should().BeEquivalentTo("https://home.integration.account.gov.uk/settings");
     }
-    
+
     [Test, MoqAutoData]
     public void Then_The_View_Is_Returned_With_Model_With_No_Account(
         [Frozen] Mock<IConfiguration> configuration,
@@ -44,7 +44,7 @@ public class UserControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as ChangeSignInDetailsViewModel;
-        Assert.AreEqual("https://home.integration.account.gov.uk/settings", actualModel?.SettingsLink);
+        actualModel?.SettingsLink.Should().BeEquivalentTo("https://home.integration.account.gov.uk/settings");
     }
 
     [Test, MoqAutoData]
@@ -58,18 +58,18 @@ public class UserControllerTests
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
 
         var actual = controller.AddUserDetails(firstName, lastName, correlationId);
-        
-        Assert.IsNotNull(actual);
+
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as AddUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
         actualModel.TermsOfUseLink.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/termsAndConditions/overview");
     }
-    
+
     [Test, MoqAutoData]
     public void Then_The_TermsAndConditionsUrl_Is_Correctly_Generated_Are_Passed_To_The_View(
         [Frozen] Mock<IConfiguration> configuration,
@@ -78,12 +78,12 @@ public class UserControllerTests
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
 
         var actual = controller.AddUserDetails();
-        
-        Assert.IsNotNull(actual);
+
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as AddUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().BeNullOrEmpty();
         actualModel!.LastName.Should().BeNullOrEmpty();
         actualModel!.CorrelationId.Should().BeNullOrEmpty();
@@ -169,14 +169,14 @@ public class UserControllerTests
         {
             HttpContext = httpContext
         };
-        
+
         // sut
         var actual = controller.AddUserDetails(model) as RedirectToRouteResult;
 
         // assert
         actual.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
     }
-    
+
     [Test, MoqAutoData]
     public void When_Edit_Then_The_FirstName_LastName_And_CorrelationId_Are_Passed_To_The_View(
         string firstName,
@@ -188,18 +188,21 @@ public class UserControllerTests
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
 
         var actual = controller.EditUserDetails(firstName, lastName, correlationId);
-        
-        Assert.IsNotNull(actual);
+
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as EditUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().Be(firstName);
+        actualModel!.OriginalFirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
+        actualModel!.OriginalLastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
         actualModel.CancelLink.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/service/index");
+        actualModel.HasNoChange.Should().BeFalse();
     }
-    
+
     [Test, MoqAutoData]
     public void When_Edit_Invalid_Model_And_Auth_Is_Given_Throw_Invalid_ModelState(
         string emailClaimValue,
@@ -226,6 +229,8 @@ public class UserControllerTests
         controller.ModelState.AddModelError(nameof(model.FirstName), errorMessage);
         controller.ModelState.AddModelError(nameof(model.LastName), errorMessage);
 
+        model.OriginalFirstName = model.FirstName;
+        model.OriginalLastName = model.LastName;
 
         // sut
         var actual = (ViewResult)controller.EditUserDetails(model);
@@ -235,6 +240,8 @@ public class UserControllerTests
         var actualModel = actual.Model as EditUserDetailsModel;
         actualModel.FirstNameError.Length.Should().BeGreaterThanOrEqualTo(1);
         actualModel.LastNameError.Length.Should().BeGreaterThanOrEqualTo(1);
+        actualModel.HasNoChange.Should().BeTrue();
+        actualModel.HasNoChangeError.Length.Should().BeGreaterThanOrEqualTo(1);
     }
 
     [Test, MoqAutoData]
@@ -256,6 +263,8 @@ public class UserControllerTests
         {
             FirstName = firstName,
             LastName = lastName,
+            OriginalFirstName = "originalFirst",
+            OriginalLastName = "originalLast"
         };
         serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
@@ -279,7 +288,7 @@ public class UserControllerTests
         {
             HttpContext = httpContext
         };
-        
+
         // sut
         var actual = controller.EditUserDetails(model) as RedirectToRouteResult;
 
@@ -300,11 +309,11 @@ public class UserControllerTests
 
         var actual = controller.ConfirmUserDetails(firstName, lastName, correlationId, isEdit);
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as ConfirmUserDetailsModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.FirstName.Should().Be(firstName);
         actualModel!.LastName.Should().Be(lastName);
         actualModel!.CorrelationId.Should().Be(correlationId);
@@ -391,11 +400,11 @@ public class UserControllerTests
 
         var actual = controller.UserDetailsSuccess(correlationId, isEdit);
 
-        Assert.IsNotNull(actual);
+        actual.Should().NotBeNull();
         var actualViewResult = actual as ViewResult;
-        Assert.IsNotNull(actualViewResult);
+        actualViewResult.Should().NotBeNull();
         var actualModel = actualViewResult!.Model as UserDetailsSuccessModel;
-        Assert.IsNotNull(actualModel);
+        actualModel.Should().NotBeNull();
         actualModel!.CorrelationId.Should().Be(correlationId);
         actualModel.IsEdit.Should().Be(isEdit);
         actualModel.AccountSaveAndComeBackLaterUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/accounts/create/progress-saved");
