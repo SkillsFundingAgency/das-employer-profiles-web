@@ -24,7 +24,7 @@ public class WhenAddingServicesToTheContainer
 
         var type = provider.GetService(toResolve);
             
-        Assert.IsNotNull(type);
+        type.Should().NotBeNull();
     }
     
     [Test]
@@ -35,8 +35,8 @@ public class WhenAddingServicesToTheContainer
         var provider = serviceCollection.BuildServiceProvider();
             
         var type = provider.GetServices(typeof(IAuthorizationHandler)).ToList();
-            
-        Assert.IsNotNull(type);
+
+        type.Should().NotBeNull();
         type.Count.Should().Be(2);
         type.Should().ContainSingle(c => c.GetType() == typeof(EmployerAccountAuthorizationHandler));
     }

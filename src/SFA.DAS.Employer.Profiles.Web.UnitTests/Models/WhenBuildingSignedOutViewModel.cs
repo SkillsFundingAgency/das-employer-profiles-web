@@ -1,3 +1,4 @@
+using FluentAssertions;
 using SFA.DAS.Employer.Profiles.Web.Models;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Models;
@@ -14,7 +15,7 @@ public class WhenBuildingSignedOutViewModel
     public void Then_The_Url_Is_Built_Correctly_For_Each_Environment(string environment, string expectedUrlPart)
     {
         var model = new SignedOutViewModel(environment);
-        
-        Assert.AreEqual($"https://accounts.{expectedUrlPart}.gov.uk", model.ServiceLink);
+
+        model.ServiceLink.Should().Be($"https://accounts.{expectedUrlPart}.gov.uk");
     }
 }
