@@ -14,17 +14,9 @@ using SFA.DAS.GovUK.Auth.Services;
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
 [Route("[controller]")]
-public class ServiceController : Controller
+public class ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService)
+    : Controller
 {
-    private readonly IConfiguration _configuration;
-    private readonly IStubAuthenticationService _stubAuthenticationService;
-
-    public ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService)
-    {
-        _configuration = configuration;
-        _stubAuthenticationService = stubAuthenticationService;
-    }
-    
     [Route("signout", Name = RouteNames.SignOut)]
     public async Task<IActionResult> SignOut()
     {
@@ -32,20 +24,22 @@ public class ServiceController : Controller
 
         var authenticationProperties = new AuthenticationProperties();
         authenticationProperties.Parameters.Clear();
-        authenticationProperties.Parameters.Add("id_token",idToken);
+        authenticationProperties.Parameters.Add("id_token", idToken);
 
         var schemes = new List<string>
         {
             CookieAuthenticationDefaults.AuthenticationScheme
         };
-        _ = bool.TryParse(_configuration["StubAuth"], out var stubAuth);
+
+        _ = bool.TryParse(configuration["StubAuth"], out var stubAuth);
+
         if (!stubAuth)
         {
             schemes.Add(OpenIdConnectDefaults.AuthenticationScheme);
         }
-        
+
         return SignOut(
-            authenticationProperties, 
+            authenticationProperties,
             schemes.ToArray());
     }
 
@@ -54,7 +48,7 @@ public class ServiceController : Controller
     [HttpGet]
     public IActionResult SignedOut()
     {
-        return View("SignedOut", new SignedOutViewModel(_configuration["ResourceEnvironmentName"]));
+        return View("SignedOut", new SignedOutViewModel(configuration["ResourceEnvironmentName"]));
     }
 
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
@@ -63,55 +57,56 @@ public class ServiceController : Controller
     {
         return View();
     }
-    
+
     [HttpGet]
     [Route("account-details", Name = RouteNames.StubAccountDetailsGet)]
-    public IActionResult AccountDetails([FromQuery]string returnUrl)
+    public IActionResult AccountDetails([FromQuery] string returnUrl)
     {
-        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        if (configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
             return NotFound();
         }
-        
+
         return View("AccountDetails", new StubAuthenticationViewModel
         {
             ReturnUrl = returnUrl
         });
     }
-    
+
     [HttpPost]
     [Route("account-details", Name = RouteNames.StubAccountDetailsPost)]
     public async Task<IActionResult> AccountDetails(StubAuthenticationViewModel model)
     {
-        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        if (configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
             return NotFound();
         }
 
-        var claims = await _stubAuthenticationService.GetStubSignInClaims(model);
-        
+        var claims = await stubAuthenticationService.GetStubSignInClaims(model);
+
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
             new AuthenticationProperties());
-        
-        return RedirectToRoute(RouteNames.StubSignedIn, new {returnUrl = model.ReturnUrl});
+
+        return RedirectToRoute(RouteNames.StubSignedIn, new { returnUrl = model.ReturnUrl });
     }
 
     [HttpGet]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [Route("Stub-Auth", Name = RouteNames.StubSignedIn)]
-    public IActionResult StubSignedIn([FromQuery]string returnUrl) 
+    public IActionResult StubSignedIn([FromQuery] string returnUrl)
     {
-        if (_configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
+        if (configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
             return NotFound();
         }
+
         var viewModel = new AccountStubViewModel
         {
-            Email = User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.Email))?.Value,
-            Id = User.Claims.FirstOrDefault(c=>c.Type.Equals(ClaimTypes.NameIdentifier))?.Value,
-            Accounts = JsonConvert.DeserializeObject<Dictionary<string,EmployerUserAccountItem>>(
-                User.Claims.FirstOrDefault(c=>c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value)
-                .Select(c=>c.Value)
+            Email = User.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value,
+            Id = User.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.NameIdentifier))?.Value,
+            Accounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(
+                    User.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value)
+                .Select(c => c.Value)
                 .ToList(),
             ReturnUrl = returnUrl
         };

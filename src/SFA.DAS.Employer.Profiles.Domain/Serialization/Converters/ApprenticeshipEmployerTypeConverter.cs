@@ -8,7 +8,7 @@ public class ApprenticeshipEmployerTypeConverter : JsonConverter<ApprenticeshipE
 {
     public override ApprenticeshipEmployerType Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
-        var stringValue = reader.GetString().Replace(" ", "");
+        var stringValue = reader.GetString()!.Replace(" ", "");
         return stringValue switch
         {
             "Levy" => ApprenticeshipEmployerType.Levy,
@@ -20,13 +20,14 @@ public class ApprenticeshipEmployerTypeConverter : JsonConverter<ApprenticeshipE
 
     public override void Write(Utf8JsonWriter writer, ApprenticeshipEmployerType value, JsonSerializerOptions options)
     {
-        string stringValue = value switch
+        var stringValue = value switch
         {
             ApprenticeshipEmployerType.Levy => "Levy",
             ApprenticeshipEmployerType.NonLevy => "NonLevy",
             ApprenticeshipEmployerType.Unknown => "Unknown",
             _ => throw new JsonException($"Unknown value for ApprenticeshipEmployerType: {value}")
         };
+        
         writer.WriteStringValue(stringValue);
     }
 }

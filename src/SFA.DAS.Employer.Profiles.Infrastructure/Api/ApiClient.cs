@@ -17,6 +17,7 @@ public class ApiClient : IApiClient
         _config = config.Value;
         _httpClient.BaseAddress = new Uri(config.Value.BaseUrl);
     }
+    
     public async Task<ApiResponse<TResponse>> Get<TResponse>(IGetApiRequest request)
     {
         var requestMessage = new HttpRequestMessage(HttpMethod.Get, request.GetUrl);
@@ -34,6 +35,7 @@ public class ApiClient : IApiClient
             Content = new StringContent(JsonSerializer.Serialize(request.Data), Encoding.UTF8, "application/json"),
             VersionPolicy = HttpVersionPolicy.RequestVersionOrLower
         };
+        
         AddAuthenticationHeader(requestMessage);
 
         var response = await _httpClient.SendAsync(requestMessage).ConfigureAwait(false);
@@ -52,7 +54,7 @@ public class ApiClient : IApiClient
         var json = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
         
         var errorContent = "";
-        var responseBody = (TResponse)default;
+        var responseBody = (TResponse)default!;
         
         if(!response.IsSuccessStatusCode)
         {
