@@ -59,11 +59,6 @@ app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 
-app.UseEndpoints(endpointBuilder =>
-{
-    endpointBuilder.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Service}/{action=Index}/{id?}");
-});
+app.MapControllerRoute(name: "default", pattern: "{controller=Service}/{action=Index}/{id?}");
 
 await app.RunAsync();
