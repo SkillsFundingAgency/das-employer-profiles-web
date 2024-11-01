@@ -16,7 +16,7 @@ public class EmployerUserAccounts
     public static implicit operator EmployerUserAccounts(GetUserAccountsResponse source)
     {
         var accounts = source?.UserAccounts == null
-            ? new List<EmployerUserAccountItem>()
+            ? []
             : source.UserAccounts.Select(c => (EmployerUserAccountItem) c).ToList();
         
         return new EmployerUserAccounts

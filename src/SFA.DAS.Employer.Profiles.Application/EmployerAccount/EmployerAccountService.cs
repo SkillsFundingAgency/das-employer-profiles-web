@@ -11,24 +11,19 @@ public interface IEmployerAccountService
     Task<EmployerUserAccounts> GetUserAccounts(string userId, string email);
     Task<PutUserAccountResponse> UpsertUserAccount(string userId, UpsertAccountRequest request);
 }
-public class EmployerAccountService : IEmployerAccountService
-{
-    private readonly IApiClient _apiClient;
 
-    public EmployerAccountService(IApiClient apiClient)
-    {
-        _apiClient = apiClient;
-    }
+public class EmployerAccountService(IApiClient apiClient) : IEmployerAccountService
+{
     public async Task<EmployerUserAccounts> GetUserAccounts(string userId, string email)
     {
-        var result = await _apiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(userId, email));
+        var result = await apiClient.Get<GetUserAccountsResponse>(new GetUserAccountsRequest(userId, email));
 
         return result.Body;
     }
 
     public async Task<PutUserAccountResponse> UpsertUserAccount(string userId, UpsertAccountRequest request)
     {
-        var result = await _apiClient.Put<PutUserAccountResponse>(new UpsertUserApiRequest(userId, request));
+        var result = await apiClient.Put<PutUserAccountResponse>(new UpsertUserApiRequest(userId, request));
 
         return result.Body;
     }

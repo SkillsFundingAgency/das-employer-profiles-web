@@ -25,38 +25,31 @@ builder.Services.Configure<IISServerOptions>(options => { options.AutomaticAuthe
 builder.Services.AddHealthChecks();
 
 builder.Services.AddAndConfigureGovUkAuthentication(
-    rootConfiguration, 
+    rootConfiguration,
     typeof(EmployerAccountPostAuthenticationClaimsHandler),
     "",
     "/service/account-details");
-            
-builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, 
-    rootConfiguration["ResourceEnvironmentName"]);
-            
-builder.Services.Configure<RouteOptions>(options =>
-{
-                
-}).AddMvc(options =>
+
+builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, rootConfiguration["ResourceEnvironmentName"]);
+
+builder.Services.Configure<RouteOptions>(options => { }).AddMvc(options =>
 {
     options.Filters.Add(new AnalyticsFilterAttribute());
     if (!rootConfiguration.IsDev())
     {
-        options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());    
+        options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
     }
-                    
 });
 
-
 builder.Services.AddDataProtection(rootConfiguration);
-    
+
 builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
-            
+
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    
 }
 
 app.UseHealthChecks("/ping");
@@ -66,11 +59,6 @@ app.UseAuthentication();
 app.UseRouting();
 app.UseAuthorization();
 
-app.UseEndpoints(endpointBuilder =>
-{
-    endpointBuilder.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Service}/{action=Index}/{id?}");
-});
+app.MapControllerRoute(name: "default", pattern: "{controller=Service}/{action=Index}/{id?}");
 
-app.Run();
+await app.RunAsync();

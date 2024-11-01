@@ -14,26 +14,16 @@ using SFA.DAS.Employer.Shared.UI.Attributes;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
-
-
-public class UserController : Controller
+public class UserController(IConfiguration configuration, IEmployerAccountService accountsService)
+    : Controller
 {
-    private readonly IConfiguration _configuration;
-    private readonly IEmployerAccountService _accountsService;
-
-    public UserController(IConfiguration configuration, IEmployerAccountService accountsService)
-    {
-        _configuration = configuration;
-        _accountsService = accountsService;
-    }
-
     [SetNavigationSection(NavigationSection.AccountsHome)]
     [Authorize(Policy = nameof(PolicyNames.HasEmployerAccount))]
     [HttpGet]
     [Route("accounts/{employerAccountId}/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetails)]
     public IActionResult ChangeSignInDetails()
     {
-        var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
+        var model = new ChangeSignInDetailsViewModel(configuration["ResourceEnvironmentName"]);
         return View(model);
     }
 
@@ -42,7 +32,7 @@ public class UserController : Controller
     [Route("accounts/[controller]/change-sign-in-details", Name = RouteNames.ChangeSignInDetailsNoAccount)]
     public IActionResult ChangeSignInDetailsNoAccount()
     {
-        var model = new ChangeSignInDetailsViewModel(_configuration["ResourceEnvironmentName"]);
+        var model = new ChangeSignInDetailsViewModel(configuration["ResourceEnvironmentName"]);
         return View("ChangeSignInDetails", model);
     }
 
@@ -57,19 +47,17 @@ public class UserController : Controller
             FirstName = firstName,
             LastName = lastName,
             CorrelationId = correlationId,
-            TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"])
+            TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(configuration["ResourceEnvironmentName"])
         };
         ModelState.Clear();
         return View(addUserDetailsModel);
     }
-
 
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [HttpPost]
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
     public IActionResult AddUserDetails(AddUserDetailsModel model)
     {
-        // check if the model state is valid.
         if (!ModelState.IsValid)
         {
             return View(new AddUserDetailsModel
@@ -80,7 +68,7 @@ public class UserController : Controller
                         kvp => kvp.Key,
                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
                     ),
-                TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(_configuration["ResourceEnvironmentName"]),
+                TermsOfUseLink = UrlRedirectionExtensions.GetTermsAndConditionsUrl(configuration["ResourceEnvironmentName"]),
                 CorrelationId = model.CorrelationId,
                 FirstName = model.FirstName,
                 LastName = model.LastName
@@ -103,9 +91,11 @@ public class UserController : Controller
             OriginalFirstName = firstName,
             OriginalLastName = lastName,
             CorrelationId = correlationId,
-            CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
+            CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(configuration["ResourceEnvironmentName"])}"
         };
+
         ModelState.Clear();
+
         return View(editUserDetailsModel);
     }
 
@@ -120,7 +110,6 @@ public class UserController : Controller
             ModelState.AddModelError(nameof(model.HasNoChange), "Make changes to user details or select 'Cancel'");
         }
 
-        // check if the model state is valid.
         if (!ModelState.IsValid)
         {
             return View(new EditUserDetailsModel
@@ -131,7 +120,7 @@ public class UserController : Controller
                         kvp => kvp.Key,
                         kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).FirstOrDefault()
                     ),
-                CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}",
+                CancelLink = $"{UrlRedirectionExtensions.GetRedirectUrl(configuration["ResourceEnvironmentName"])}",
                 CorrelationId = model.CorrelationId,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -179,7 +168,7 @@ public class UserController : Controller
 
         // Add the user details to the repository via Apim.
         Guid.TryParse(model.CorrelationId, out var correlationId);
-        _ = await _accountsService.UpsertUserAccount(userId, new UpsertAccountRequest
+        _ = await accountsService.UpsertUserAccount(userId, new UpsertAccountRequest
         {
             FirstName = model.FirstName,
             Email = email,
@@ -188,12 +177,11 @@ public class UserController : Controller
             CorrelationId = correlationId == Guid.Empty ? null : correlationId
         });
 
-
         User.Identities.First().AddClaims(new List<Claim>
         {
-            new Claim(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email),
-            new Claim(EmployerClaims.GivenName, model.FirstName),
-            new Claim(EmployerClaims.FamilyName, model.LastName)
+            new(EmployerClaims.IdamsUserEmailClaimTypeIdentifier, email),
+            new(EmployerClaims.GivenName, model.FirstName),
+            new(EmployerClaims.FamilyName, model.LastName)
         });
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, User);
@@ -208,14 +196,14 @@ public class UserController : Controller
     public IActionResult UserDetailsSuccess([FromQuery] string correlationId = "", [FromQuery] bool isEdit = false)
     {
         var returnUrl = string.IsNullOrEmpty(correlationId)
-            ? $"{UrlRedirectionExtensions.GetRedirectUrl(_configuration["ResourceEnvironmentName"])}"
-            : $"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(_configuration["ResourceEnvironmentName"])}/{correlationId}";
+            ? $"{UrlRedirectionExtensions.GetRedirectUrl(configuration["ResourceEnvironmentName"])}"
+            : $"{UrlRedirectionExtensions.GetProviderRegistrationReturnUrl(configuration["ResourceEnvironmentName"])}/{correlationId}";
 
         return View(new UserDetailsSuccessModel
         {
             CorrelationId = correlationId,
             AccountReturnUrl = returnUrl,
-            AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(_configuration["ResourceEnvironmentName"]),
+            AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(configuration["ResourceEnvironmentName"]),
             IsEdit = isEdit
         });
     }

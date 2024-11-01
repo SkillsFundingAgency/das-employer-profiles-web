@@ -2,7 +2,7 @@
 
 @{
     ViewBag.PageID = "page-change-user-detail-success";
-    ViewBag.Title = Model.IsEdit? "User details changed": "User details added";
+    ViewBag.Title = Model.IsEdit ? "User details changed" : "User details added";
     ViewBag.ShowNav = false;
     ViewBag.GaData.Vpv = "/user/user-details-success";
 }
@@ -20,10 +20,10 @@
                 </p>
             </div>
         </div>
-        <h2 class="govuk-heading-xl">You have successfully @(Model.IsEdit? "changed": "added") user details</h2>
-        
+        <h2 class="govuk-heading-xl">You have successfully @(Model.IsEdit ? "changed" : "added") user details</h2>
+
         @if (Model.IsEdit)
-        {   
+        {
             <p class="govuk-body">You can change your user details at any time.</p>
             <p class="govuk-body">Continue to create your account.</p>
         }
@@ -38,8 +38,8 @@
             </ul>
 
             <p class="govuk-body">You can continue to do this now or at a later date.</p>
-        }        
-       
+        }
+
         <div class="govuk-button-group">
             <a href="@Model.AccountReturnUrl" class="govuk-button" role="button" draggable="false" data-module="govuk-button">Continue</a>
             <a href="@Model.AccountSaveAndComeBackLaterUrl" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">

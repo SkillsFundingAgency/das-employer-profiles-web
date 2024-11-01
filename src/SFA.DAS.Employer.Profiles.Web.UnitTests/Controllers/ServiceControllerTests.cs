@@ -33,7 +33,7 @@ public class ServiceControllerTests
 
         actual.Should().NotBeNull();
         var actualModel = actual?.Model as SignedOutViewModel;
-        Assert.AreEqual("https://accounts.test-eas.apprenticeships.education.gov.uk",actualModel?.ServiceLink);
+        actualModel?.ServiceLink.Should().Be("https://accounts.test-eas.apprenticeships.education.gov.uk");
     }
 
     [Test, MoqAutoData]
