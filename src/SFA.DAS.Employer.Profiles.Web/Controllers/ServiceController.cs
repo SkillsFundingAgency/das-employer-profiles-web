@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
@@ -16,7 +17,7 @@ using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClai
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
 [Route("[controller]")]
-public class ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService)
+public class ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService, IAssociatedAccountsService associatedAccountsService)
     : Controller
 {
     [Route("signout", Name = RouteNames.SignOut)]
@@ -95,21 +96,20 @@ public class ServiceController(IConfiguration configuration, IStubAuthentication
     [HttpGet]
     [Authorize(Policy = nameof(PolicyNames.IsAuthenticated))]
     [Route("Stub-Auth", Name = RouteNames.StubSignedIn)]
-    public IActionResult StubSignedIn([FromQuery] string returnUrl)
+    public async Task<IActionResult> StubSignedIn([FromQuery] string returnUrl)
     {
         if (configuration["ResourceEnvironmentName"].ToUpper() == "PRD")
         {
             return NotFound();
         }
 
+        var associatedAccounts = await associatedAccountsService.GetAccounts(forceRefresh: false);
+
         var viewModel = new AccountStubViewModel
         {
             Email = User.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value,
             Id = User.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.NameIdentifier))?.Value,
-            Accounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(
-                    User.Claims.FirstOrDefault(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier))?.Value)
-                .Select(c => c.Value)
-                .ToList(),
+            Accounts = associatedAccounts.Select(c => c.Value).ToList(),
             ReturnUrl = returnUrl
         };
         return View(viewModel);

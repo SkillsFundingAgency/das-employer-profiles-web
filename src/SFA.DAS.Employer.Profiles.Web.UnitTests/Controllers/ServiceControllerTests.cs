@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using Newtonsoft.Json;
+using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Controllers;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
@@ -92,7 +93,7 @@ public class ServiceControllerTests
     }
     
     [Test, MoqAutoData]
-    public void Then_The_Stub_Auth_Details_Are_Not_Returned_When_Prod(
+    public async Task Then_The_Stub_Auth_Details_Are_Not_Returned_When_Prod(
         string returnUrl,
         StubAuthUserDetails model,
         [Frozen] Mock<IConfiguration> configuration,
@@ -101,42 +102,46 @@ public class ServiceControllerTests
     {
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
         
-        var actual = controller.StubSignedIn(returnUrl) as NotFoundResult;
+        var actual = await controller.StubSignedIn(returnUrl) as NotFoundResult;
 
         actual.Should().NotBeNull();
     }
     
     [Test, MoqAutoData]
-    public void Then_The_Stub_Auth_Details_Are_Returned_When_Not_Prod(
+    public async Task Then_The_Stub_Auth_Details_Are_Returned_When_Not_Prod(
         string emailClaimValue,
         string nameClaimValue,
         string returnUrl, 
         StubAuthUserDetails model,
         EmployerUserAccountItem employerIdentifier,
+        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsService,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)
     {
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
         var httpContext = new DefaultHttpContext();
-        var employerAccounts = new Dictionary<string, EmployerUserAccountItem>{{employerIdentifier.AccountId, employerIdentifier}};
-        var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
         var emailClaim = new Claim(ClaimTypes.Email, emailClaimValue);
         var nameClaim = new Claim(ClaimTypes.NameIdentifier, nameClaimValue);
         var claimsPrinciple = new ClaimsPrincipal([
             new ClaimsIdentity([
-                claim,
             emailClaim, 
             nameClaim
             ])
         ]);
+        
         httpContext.User = claimsPrinciple;
         controller.ControllerContext = new ControllerContext
         {
             HttpContext = httpContext
         };
+
+        var employerAccounts = new List<EmployerUserAccountItem> { employerIdentifier };
+        associatedAccountsService.Setup(x => x.GetAccounts(false))
+            .ReturnsAsync(employerAccounts.ToDictionary(x => x.AccountId))
+            .Verifiable();
         
-        var actual = controller.StubSignedIn(returnUrl) as ViewResult;
+        var actual = await controller.StubSignedIn(returnUrl) as ViewResult;
 
         actual.Should().NotBeNull();
         var actualModel = actual.Model as AccountStubViewModel;
@@ -144,8 +149,11 @@ public class ServiceControllerTests
         actualModel.Email.Should().Be(emailClaimValue);
         actualModel.Id.Should().Be(nameClaimValue);
         actualModel.ReturnUrl.Should().Be(returnUrl);
-        actualModel.Accounts.Should().BeEquivalentTo(new List<EmployerUserAccountItem> {employerIdentifier});
+        actualModel.Accounts.Should().BeEquivalentTo(employerAccounts);
+        
+        associatedAccountsService.Verify(x=> x.GetAccounts(false), Times.Once);
     }
+    
     [Test, MoqAutoData]
     public void Then_The_Get_For_Entering_Stub_Auth_Details_Is_Returned_When_Not_Prod(
         string returnUrl, 
