@@ -10,9 +10,7 @@ using Moq;
 using Newtonsoft.Json;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.Configuration;
-using SFA.DAS.Employer.Profiles.Domain.Employers;
-using SFA.DAS.Employer.Profiles.Web.AppStart;
-using SFA.DAS.Employer.Profiles.Web.Infrastructure;
+using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.AppStart;

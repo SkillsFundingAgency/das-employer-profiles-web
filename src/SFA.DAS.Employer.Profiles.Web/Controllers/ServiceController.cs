@@ -9,7 +9,9 @@ using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
+using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.GovUK.Auth.Services;
+using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClaims;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 

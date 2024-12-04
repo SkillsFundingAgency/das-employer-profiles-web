@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.Configuration;
 using SFA.DAS.Employer.Profiles.Web.AppStart;
 using SFA.DAS.Employer.Profiles.Web.Extensions;
@@ -7,6 +8,7 @@ using SFA.DAS.Employer.Profiles.Web.Filters;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.GovUK.Auth.AppStart;
+using SFA.DAS.GovUK.Auth.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,11 +26,12 @@ builder.Services.Configure<IISServerOptions>(options => { options.AutomaticAuthe
 
 builder.Services.AddHealthChecks();
 
-builder.Services.AddAndConfigureGovUkAuthentication(
-    rootConfiguration,
-    typeof(EmployerAccountPostAuthenticationClaimsHandler),
-    "",
-    "/service/account-details");
+builder.Services.AddAndConfigureGovUkAuthentication(rootConfiguration, new AuthRedirects
+{
+    SignedOutRedirectUrl = "",
+    LocalStubLoginPath = "/service/account-details",
+    LoginRedirect = "/service/account-details",
+}, null, typeof(EmployerAccountService));
 
 builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, rootConfiguration["ResourceEnvironmentName"]);
 

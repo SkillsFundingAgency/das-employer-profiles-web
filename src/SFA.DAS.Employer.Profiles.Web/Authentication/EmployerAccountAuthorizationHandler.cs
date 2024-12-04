@@ -5,6 +5,8 @@ using Newtonsoft.Json;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
+using SFA.DAS.GovUK.Auth.Employer;
+using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClaims;
 
 namespace SFA.DAS.Employer.Profiles.Web.Authentication;
 

@@ -14,9 +14,11 @@ using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Controllers;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
+using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.GovUK.Auth.Models;
 using SFA.DAS.GovUK.Auth.Services;
 using SFA.DAS.Testing.AutoFixture;
+using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClaims;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Controllers;
 
@@ -121,12 +123,13 @@ public class ServiceControllerTests
         var claim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, JsonConvert.SerializeObject(employerAccounts));
         var emailClaim = new Claim(ClaimTypes.Email, emailClaimValue);
         var nameClaim = new Claim(ClaimTypes.NameIdentifier, nameClaimValue);
-        var claimsPrinciple = new ClaimsPrincipal(new[] {new ClaimsIdentity(new[]
-        {
-            claim,
+        var claimsPrinciple = new ClaimsPrincipal([
+            new ClaimsIdentity([
+                claim,
             emailClaim, 
             nameClaim
-        })});
+            ])
+        ]);
         httpContext.User = claimsPrinciple;
         controller.ControllerContext = new ControllerContext
         {
