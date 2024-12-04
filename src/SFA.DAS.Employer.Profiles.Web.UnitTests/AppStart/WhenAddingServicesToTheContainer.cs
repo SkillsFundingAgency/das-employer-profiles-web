@@ -51,19 +51,18 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddDistributedMemoryCache();
         serviceCollection.AddServiceRegistration();
         serviceCollection.AddAuthenticationServices();
-        
     }
-    
+
     private static IConfigurationRoot GenerateConfiguration()
     {
         var configSource = new MemoryConfigurationSource
         {
             InitialData = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("EmployerProfilesWebConfiguration:BaseUrl", "https://test.com/"),
-                new KeyValuePair<string, string>("EmployerProfilesWebConfiguration:Key", "123edc"),
-                new KeyValuePair<string, string>("EnvironmentName", "test"),
-            }
+                new("EmployerProfilesWebConfiguration:BaseUrl", "https://test.com/"),
+                new("EmployerProfilesWebConfiguration:Key", "123edc"),
+                new("EnvironmentName", "test"),
+            }!
         };
 
         var provider = new MemoryConfigurationProvider(configSource);
