@@ -15,7 +15,6 @@ namespace SFA.DAS.Employer.Profiles.Web.UnitTests.AppStart;
 public class WhenAddingServicesToTheContainer
 {
     [TestCase(typeof(IEmployerAccountService))]
-    [TestCase(typeof(ICustomClaims))]
     public void Then_The_Dependencies_Are_Correctly_Resolved(Type toResolve)
     {
         var serviceCollection = new ServiceCollection();

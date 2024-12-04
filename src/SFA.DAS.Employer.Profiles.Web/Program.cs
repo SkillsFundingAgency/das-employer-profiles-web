@@ -30,7 +30,6 @@ builder.Services.AddAndConfigureGovUkAuthentication(rootConfiguration, new AuthR
 {
     SignedOutRedirectUrl = "",
     LocalStubLoginPath = "/service/account-details",
-    LoginRedirect = "/service/account-details",
 }, null, typeof(EmployerAccountService));
 
 builder.Services.AddMaMenuConfiguration(RouteNames.SignOut, rootConfiguration["ResourceEnvironmentName"]);
