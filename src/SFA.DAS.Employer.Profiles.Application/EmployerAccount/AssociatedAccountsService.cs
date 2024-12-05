@@ -30,14 +30,18 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
 
         if (!forceRefresh && employerAccountsClaim != null)
         {
+            logger.LogWarning("AssociatedAccountsService.GetAccounts: ForceRefresh {ForceRefresh}.", forceRefresh);
             try
             {
                 var accountsFromClaim = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountsClaim.Value);
+                
+                logger.LogWarning("AssociatedAccountsService.GetAccounts: accountsFromClaim {AccountsFromClaim}.", accountsFromClaim);
 
                 // Some users have 100's of employer accounts. The claims cannot handle that volume of data,
                 // so the claim may have been added for authorization purposes, but the claim itself is empty.
                 if (accountsFromClaim != null && accountsFromClaim.Count > 0)
                 {
+                    logger.LogWarning("AssociatedAccountsService.GetAccounts: returning accounts from claims");
                     return accountsFromClaim;
                 }
             }
@@ -51,9 +55,13 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         var userClaim = user.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
         var email = user.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
         var userId = userClaim.Value;
+        
+        logger.LogWarning("AssociatedAccountsService.GetAccounts: Getting accounts from accountsService with email {Email} and UserId {UserId}.", email, userId);
 
         var result = await accountsService.GetUserAccounts(userId, email);
         var associatedAccounts = result.EmployerAccounts.ToDictionary(k => k.AccountId);
+        
+        logger.LogWarning("AssociatedAccountsService.GetAccounts: Accounts returned from accountsService {Data}.",JsonConvert.SerializeObject(associatedAccounts));
 
         PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
 
@@ -66,6 +74,8 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         var accountsAsJson = JsonConvert.SerializeObject(associatedAccounts.Count <= MaxPermittedNumberOfAccountsOnClaim
             ? associatedAccounts
             : new Dictionary<string, EmployerUserAccountItem>());
+        
+        logger.LogWarning("AssociatedAccountsService.GetAccounts: accountsAsJson to persist to claims is {Dara}.", accountsAsJson);
 
         var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
 
