@@ -17,7 +17,11 @@ using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClai
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
 [Route("[controller]")]
-public class ServiceController(IConfiguration configuration, IStubAuthenticationService stubAuthenticationService, IAssociatedAccountsService associatedAccountsService)
+public class ServiceController(
+    IConfiguration configuration,
+    IStubAuthenticationService stubAuthenticationService,
+    IAssociatedAccountsService associatedAccountsService,
+    ILogger<ServiceController> logger)
     : Controller
 {
     [Route("signout", Name = RouteNames.SignOut)]
@@ -85,10 +89,15 @@ public class ServiceController(IConfiguration configuration, IStubAuthentication
             return NotFound();
         }
 
+        logger.LogWarning("ServiceController. StubAuthenticationViewModel: {Model}", JsonConvert.SerializeObject(model));
+
         var claims = await stubAuthenticationService.GetStubSignInClaims(model);
 
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claims,
-            new AuthenticationProperties());
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            claims,
+            new AuthenticationProperties()
+        );
 
         return RedirectToRoute(RouteNames.StubSignedIn, new { returnUrl = model.ReturnUrl });
     }
@@ -112,6 +121,7 @@ public class ServiceController(IConfiguration configuration, IStubAuthentication
             Accounts = associatedAccounts.Select(c => c.Value).ToList(),
             ReturnUrl = returnUrl
         };
+        
         return View(viewModel);
     }
 }
