@@ -10,7 +10,7 @@ using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.GovUK.Auth.Employer;
 using SFA.DAS.Testing.AutoFixture;
 
-namespace SFA.DAS.Employer.Profiles.Application.UnitTests.Employer;
+namespace SFA.DAS.Employer.Profiles.Application.UnitTests.Employer.AccountsClaims;
 
 public class WhenGettingAssociatedAccounts
 {
