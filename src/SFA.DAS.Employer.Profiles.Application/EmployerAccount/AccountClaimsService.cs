@@ -7,12 +7,12 @@ using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 
-public interface IAssociatedAccountsService
+public interface IAccountClaimsService
 {
-    Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh);
+    Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh);
 }
 
-public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AssociatedAccountsService> logger) : IAssociatedAccountsService
+public class AccountClaimsService(IGovAuthEmployerAccountService accountsService, IHttpContextAccessor httpContextAccessor, ILogger<AccountClaimsService> logger) : IAccountClaimsService
 {
     // To allow unit testing
     public int MaxPermittedNumberOfAccountsOnClaim { get; set; } = Constants.WebConstants.MaxNumberOfEmployerAccountsAllowedOnClaim;
@@ -23,7 +23,7 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
     /// </summary>
     /// <param name="forceRefresh">Forces data to be refreshed from UserAccountsService and persisted to user claims regardless of claims state.</param>
     /// <returns>Dictionary of string, EmployerUserAccountItem</returns>
-    public async Task<Dictionary<string, EmployerUserAccountItem>> GetAccounts(bool forceRefresh)
+    public async Task<Dictionary<string, EmployerUserAccountItem>> GetAssociatedAccounts(bool forceRefresh)
     {
         var user = httpContextAccessor.HttpContext.User;
         var employerAccountsClaim = user.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
@@ -34,7 +34,7 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
             try
             {
                 var accountsFromClaim = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountsClaim.Value);
-                
+
                 logger.LogWarning("AssociatedAccountsService.GetAccounts: accountsFromClaim {AccountsFromClaim}.", accountsFromClaim);
 
                 // Some users have 100's of employer accounts. The claims cannot handle that volume of data,
@@ -55,15 +55,18 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         var userClaim = user.Claims.First(c => c.Type.Equals(ClaimTypes.NameIdentifier));
         var email = user.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
         var userId = userClaim.Value;
-        
+
         logger.LogWarning("AssociatedAccountsService.GetAccounts: Getting accounts from accountsService with email {Email} and UserId {UserId}.", email, userId);
 
         var result = await accountsService.GetUserAccounts(userId, email);
         var associatedAccounts = result.EmployerAccounts.ToDictionary(k => k.AccountId);
-        
-        logger.LogWarning("AssociatedAccountsService.GetAccounts: Accounts returned from accountsService {Data}.",JsonConvert.SerializeObject(associatedAccounts));
 
-        PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
+        logger.LogWarning("AssociatedAccountsService.GetAccounts: Accounts returned {Count} accounts from accountsService.", associatedAccounts.Count);
+
+        if (forceRefresh)
+        {
+            PersistToClaims(associatedAccounts, employerAccountsClaim, userClaim);
+        }
 
         return associatedAccounts;
     }
@@ -74,7 +77,7 @@ public class AssociatedAccountsService(IGovAuthEmployerAccountService accountsSe
         var accountsAsJson = JsonConvert.SerializeObject(associatedAccounts.Count <= MaxPermittedNumberOfAccountsOnClaim
             ? associatedAccounts
             : new Dictionary<string, EmployerUserAccountItem>());
-        
+
         logger.LogWarning("AssociatedAccountsService.GetAccounts: accountsAsJson to persist to claims is {Dara}.", accountsAsJson);
 
         var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);

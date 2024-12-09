@@ -9,7 +9,7 @@ namespace SFA.DAS.Employer.Profiles.Web.Authentication;
 
 public class EmployerAccountAuthorizationHandler(
     IHttpContextAccessor httpContextAccessor,
-    IAssociatedAccountsService associatedAccountsService,
+    IAccountClaimsService accountClaimsService,
     ILogger<EmployerAccountAuthorizationHandler> logger) : AuthorizationHandler<EmployerAccountRequirement>
 {
     protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployerAccountRequirement requirement)
@@ -35,7 +35,7 @@ public class EmployerAccountAuthorizationHandler(
 
         try
         {
-            employerAccounts = await associatedAccountsService.GetAccounts(forceRefresh: false);
+            employerAccounts = await accountClaimsService.GetAssociatedAccounts(forceRefresh: false);
         }
         catch (JsonSerializationException e)
         {
@@ -59,7 +59,7 @@ public class EmployerAccountAuthorizationHandler(
                 return false;
             }
 
-            var updatedEmployerAccounts = await associatedAccountsService.GetAccounts(forceRefresh: true);
+            var updatedEmployerAccounts = await accountClaimsService.GetAssociatedAccounts(forceRefresh: true);
 
             if (!updatedEmployerAccounts.ContainsKey(accountIdFromUrl))
             {

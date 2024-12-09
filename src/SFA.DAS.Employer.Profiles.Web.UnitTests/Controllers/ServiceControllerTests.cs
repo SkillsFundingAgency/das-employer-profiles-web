@@ -114,7 +114,7 @@ public class ServiceControllerTests
         string returnUrl, 
         StubAuthUserDetails model,
         EmployerUserAccountItem employerIdentifier,
-        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsService,
+        [Frozen] Mock<IAccountClaimsService> associatedAccountsService,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)
@@ -137,7 +137,7 @@ public class ServiceControllerTests
         };
 
         var employerAccounts = new List<EmployerUserAccountItem> { employerIdentifier };
-        associatedAccountsService.Setup(x => x.GetAccounts(false))
+        associatedAccountsService.Setup(x => x.GetAssociatedAccounts(false))
             .ReturnsAsync(employerAccounts.ToDictionary(x => x.AccountId))
             .Verifiable();
         
@@ -151,7 +151,7 @@ public class ServiceControllerTests
         actualModel.ReturnUrl.Should().Be(returnUrl);
         actualModel.Accounts.Should().BeEquivalentTo(employerAccounts);
         
-        associatedAccountsService.Verify(x=> x.GetAccounts(false), Times.Once);
+        associatedAccountsService.Verify(x=> x.GetAssociatedAccounts(false), Times.Once);
     }
     
     [Test, MoqAutoData]

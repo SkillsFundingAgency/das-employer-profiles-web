@@ -19,7 +19,7 @@ public class WhenGettingAssociatedAccounts
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsService>> logger,
+        Mock<ILogger<AccountClaimsService>> logger,
         Mock<IGovAuthEmployerAccountService> userAccountService,
         Dictionary<string, EmployerUserAccountItem> accountData
     )
@@ -42,13 +42,13 @@ public class WhenGettingAssociatedAccounts
 
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
 
-        var helper = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var helper = new AccountClaimsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = accountData.Count
         };
 
         //Act
-        var result = await helper.GetAccounts(forceRefresh: false);
+        var result = await helper.GetAssociatedAccounts(forceRefresh: false);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Never);
@@ -60,12 +60,15 @@ public class WhenGettingAssociatedAccounts
         result.Should().BeEquivalentTo(accountData);
     }
     
-    [Test, MoqAutoData]
+    [Test]
+    [MoqInlineAutoData(true)]
+    [MoqInlineAutoData(false)]
     public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_UserService_When_Claims_Are_Populated_But_Empty(
+        bool forceRefresh,
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsService>> logger,
+        Mock<ILogger<AccountClaimsService>> logger,
         Mock<IGovAuthEmployerAccountService> userAccountService,
         EmployerUserAccounts updatedAccountData
     )
@@ -87,22 +90,26 @@ public class WhenGettingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(updatedAccountData);
 
-        var associatedAccountsService = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var associatedAccountsService = new AccountClaimsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = updatedAccountData.EmployerAccounts.Count()
         };
 
         //Act
-        var result = await associatedAccountsService.GetAccounts(forceRefresh: false);
+        var result = await associatedAccountsService.GetAssociatedAccounts(forceRefresh);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
-        claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
-
-        var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
-        var expectedClaimValue = JsonConvert.SerializeObject(updatedAccountData.EmployerAccounts.ToDictionary(x => x.AccountId));
-        actualClaimValue.Should().Be(expectedClaimValue);
         
+        if (forceRefresh)
+        {
+            claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+            
+            var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
+            var expectedClaimValue = JsonConvert.SerializeObject(updatedAccountData.EmployerAccounts.ToDictionary(x => x.AccountId));
+            actualClaimValue.Should().Be(expectedClaimValue);
+        }
+      
         result.Should().BeEquivalentTo(updatedAccountData.EmployerAccounts.ToDictionary(x => x.AccountId));
     }
 
@@ -111,7 +118,7 @@ public class WhenGettingAssociatedAccounts
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsService>> logger,
+        Mock<ILogger<AccountClaimsService>> logger,
         Mock<IGovAuthEmployerAccountService> userAccountService,
         Dictionary<string, EmployerUserAccountItem> existingAccountData,
         EmployerUserAccounts updatedAccountData
@@ -134,13 +141,13 @@ public class WhenGettingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(updatedAccountData);
 
-        var helper = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var helper = new AccountClaimsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = existingAccountData.Count
         };
 
         //Act
-        var result = await helper.GetAccounts(forceRefresh: true);
+        var result = await helper.GetAssociatedAccounts(forceRefresh: true);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
@@ -153,12 +160,15 @@ public class WhenGettingAssociatedAccounts
         result.Should().BeEquivalentTo(updatedAccountData.EmployerAccounts.ToDictionary(x => x.AccountId));
     }
 
-    [Test, MoqAutoData]
+    [Test]
+    [MoqInlineAutoData(true)]
+    [MoqInlineAutoData(false)]
     public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_AccountsService_And_Stored_When_Claim_Value_Is_Empty_And_Within_Max_Number_Of_Accounts(
+        bool forceRefresh,
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsService>> logger,
+        Mock<ILogger<AccountClaimsService>> logger,
         Mock<IGovAuthEmployerAccountService> userAccountService,
         EmployerUserAccounts accountData
     )
@@ -179,30 +189,45 @@ public class WhenGettingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(accountData);
 
-        var associatedAccountsService = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var associatedAccountsService = new AccountClaimsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = accountData.EmployerAccounts.Count()
         };
 
         //Act
-        var result = await associatedAccountsService.GetAccounts(forceRefresh: false);
+        var result = await associatedAccountsService.GetAssociatedAccounts(forceRefresh);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
-        claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
-
-        var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
-        JsonConvert.SerializeObject(accountData.EmployerAccounts.ToDictionary(k => k.AccountId)).Should().Be(actualClaimValue);
-
+        if (forceRefresh)
+        {
+            claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+            
+            var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
+        
+            var action = () => JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(actualClaimValue)
+                .Select(x => x.Value)
+                .ToList();
+        
+            action.Should().NotThrow();
+        }
+        else
+        {
+            claimsPrinciple.Claims.Should().NotContain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        }
+        
         result.Should().BeEquivalentTo(accountData.EmployerAccounts.ToDictionary(x=> x.AccountId));
     }
 
-    [Test, MoqAutoData]
-    public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_AccountsService_And_Claim_Added_But_Not_Populated_When_Claim_Value_Is_Empty_And_Above_Max_Number_Of_Accounts(
+    [Test]
+    [MoqInlineAutoData(true)]
+    [MoqInlineAutoData(false)]
+    public async Task Then_User_EmployerAccounts_Should_Be_Retrieved_From_AccountsService_When_Claim_Value_Is_Empty_And_Above_Max_Number_Of_Accounts(
+        bool forceRefresh,
         string userId,
         string email,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        Mock<ILogger<AssociatedAccountsService>> logger,
+        Mock<ILogger<AccountClaimsService>> logger,
         Mock<IGovAuthEmployerAccountService> userAccountService,
         EmployerUserAccounts accountData
     )
@@ -223,26 +248,34 @@ public class WhenGettingAssociatedAccounts
         httpContextAccessor.Setup(x => x.HttpContext).Returns(httpContext);
         userAccountService.Setup(x => x.GetUserAccounts(userId, email)).ReturnsAsync(accountData);
 
-        var associatedAccountsService = new AssociatedAccountsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
+        var associatedAccountsService = new AccountClaimsService(userAccountService.Object, httpContextAccessor.Object, logger.Object)
         {
             MaxPermittedNumberOfAccountsOnClaim = accountData.EmployerAccounts.Count() - 1
         };
 
         //Act
-        var result = await associatedAccountsService.GetAccounts(forceRefresh: false);
+        var result = await associatedAccountsService.GetAssociatedAccounts(forceRefresh);
 
         //Assert
         userAccountService.Verify(x => x.GetUserAccounts(userId, email), Times.Once);
-        claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+
+        if (forceRefresh)
+        {
+            claimsPrinciple.Claims.Should().Contain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+            
+            var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
         
-        var actualClaimValue = claimsPrinciple.Claims.First(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier)).Value;
+            var action = () => JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(actualClaimValue)
+                .Select(x => x.Value)
+                .ToList();
+        
+            action.Should().NotThrow();
+        }
+        else
+        {
+            claimsPrinciple.Claims.Should().NotContain(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
+        }
         
         result.Should().BeEquivalentTo(accountData.EmployerAccounts.ToDictionary(x=> x.AccountId));
-        
-        var action = () => JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(actualClaimValue)
-            .Select(x => x.Value)
-            .ToList();
-        
-        action.Should().NotThrow();
     }
 }

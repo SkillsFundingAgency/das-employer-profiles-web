@@ -15,7 +15,7 @@ public static class AddServiceRegistrationExtension
     {
         services.AddTransient<IEmployerAccountService, EmployerAccountService>();
         services.AddTransient<IGovAuthEmployerAccountService, EmployerAccountService>();
-        services.AddTransient<IAssociatedAccountsService, AssociatedAccountsService>();
+        services.AddTransient<IAccountClaimsService, AccountClaimsService>();
         services.AddHttpClient<IApiClient, ApiClient>();
     }
 

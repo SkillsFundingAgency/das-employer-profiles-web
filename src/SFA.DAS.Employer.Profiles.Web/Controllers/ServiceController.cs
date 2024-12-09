@@ -20,7 +20,7 @@ namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 public class ServiceController(
     IConfiguration configuration,
     IStubAuthenticationService stubAuthenticationService,
-    IAssociatedAccountsService associatedAccountsService,
+    IAccountClaimsService accountClaimsService,
     ILogger<ServiceController> logger)
     : Controller
 {
@@ -112,7 +112,7 @@ public class ServiceController(
             return NotFound();
         }
 
-        var associatedAccounts = await associatedAccountsService.GetAccounts(forceRefresh: false);
+        var associatedAccounts = await accountClaimsService.GetAssociatedAccounts(forceRefresh: false);
 
         var viewModel = new AccountStubViewModel
         {

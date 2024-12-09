@@ -29,7 +29,7 @@ public class WhenHandlingEmployerAccountAuthorization
         EmployerAccountRequirement requirement,
         EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsService,
+        [Frozen] Mock<IAccountClaimsService> associatedAccountsService,
         EmployerAccountAuthorizationHandler authorizationHandler)
     {
         //Arrange
@@ -56,7 +56,7 @@ public class WhenHandlingEmployerAccountAuthorization
 
         var accountsDictionary = accounts.ToDictionary(x => x.AccountId);
 
-        associatedAccountsService.Setup(x => x.GetAccounts(false)).ReturnsAsync(accountsDictionary);
+        associatedAccountsService.Setup(x => x.GetAssociatedAccounts(false)).ReturnsAsync(accountsDictionary);
 
         //Act
         await authorizationHandler.HandleAsync(context);
@@ -101,7 +101,7 @@ public class WhenHandlingEmployerAccountAuthorization
         EmployerAccountRequirement requirement,
         EmployerUserAccountItem serviceResponse,
         [Frozen] Mock<IHttpContextAccessor> httpContextAccessor,
-        [Frozen] Mock<IAssociatedAccountsService> associatedAccountsService,
+        [Frozen] Mock<IAccountClaimsService> associatedAccountsService,
         EmployerAccountAuthorizationHandler authorizationHandler)
     {
         //Arrange
@@ -128,7 +128,7 @@ public class WhenHandlingEmployerAccountAuthorization
 
         var accountsDictionary = accounts.ToDictionary(x => x.AccountId);
 
-        associatedAccountsService.Setup(x => x.GetAccounts(false)).ReturnsAsync(accountsDictionary);
+        associatedAccountsService.Setup(x => x.GetAssociatedAccounts(false)).ReturnsAsync(accountsDictionary);
 
         //Act
         await authorizationHandler.HandleAsync(context);
