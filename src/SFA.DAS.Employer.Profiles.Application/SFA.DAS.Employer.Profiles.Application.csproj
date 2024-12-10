@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.121-prerelease-8" />
+      <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.121" />
       <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     </ItemGroup>
 
