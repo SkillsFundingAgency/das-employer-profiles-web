@@ -1,4 +1,4 @@
-using SFA.DAS.Employer.Profiles.Domain.Employers;
+using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.Employer.Profiles.Web.Models;
 

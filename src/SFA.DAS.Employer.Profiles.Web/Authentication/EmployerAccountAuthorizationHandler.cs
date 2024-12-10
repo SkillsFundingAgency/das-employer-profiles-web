@@ -1,31 +1,28 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Newtonsoft.Json;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
-using SFA.DAS.Employer.Profiles.Domain.Employers;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
+using SFA.DAS.GovUK.Auth.Employer;
 
 namespace SFA.DAS.Employer.Profiles.Web.Authentication;
 
 public class EmployerAccountAuthorizationHandler(
     IHttpContextAccessor httpContextAccessor,
-    IEmployerAccountService accountsService,
+    IAccountClaimsService accountClaimsService,
     ILogger<EmployerAccountAuthorizationHandler> logger) : AuthorizationHandler<EmployerAccountRequirement>
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployerAccountRequirement requirement)
+    protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, EmployerAccountRequirement requirement)
     {
-        if (!IsEmployerAuthorised(context))
+        if (!await IsEmployerAuthorised(context))
         {
-            return Task.CompletedTask;
+            return;
         }
 
         context.Succeed(requirement);
-
-        return Task.CompletedTask;
     }
 
-    private bool IsEmployerAuthorised(AuthorizationHandlerContext context)
+    private async Task<bool> IsEmployerAuthorised(AuthorizationHandlerContext context)
     {
         if (!httpContextAccessor.HttpContext.Request.RouteValues.ContainsKey(RouteValueKeys.EncodedAccountId))
         {
@@ -33,16 +30,12 @@ public class EmployerAccountAuthorizationHandler(
         }
 
         var accountIdFromUrl = httpContextAccessor.HttpContext.Request.RouteValues[RouteValueKeys.EncodedAccountId].ToString().ToUpper();
-        var employerAccountClaim = context.User.FindFirst(c => c.Type.Equals(EmployerClaims.AccountsClaimsTypeIdentifier));
-
-        if (employerAccountClaim?.Value == null)
-            return false;
-
+        
         Dictionary<string, EmployerUserAccountItem> employerAccounts;
 
         try
         {
-            employerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(employerAccountClaim.Value);
+            employerAccounts = await accountClaimsService.GetAssociatedAccounts(forceRefresh: false);
         }
         catch (JsonSerializationException e)
         {
@@ -54,33 +47,19 @@ public class EmployerAccountAuthorizationHandler(
 
         if (employerAccounts != null)
         {
-            employerIdentifier = employerAccounts.ContainsKey(accountIdFromUrl)
-                ? employerAccounts[accountIdFromUrl]
+            employerIdentifier = employerAccounts.TryGetValue(accountIdFromUrl, out var account)
+                ? account
                 : null;
         }
 
         if (employerAccounts == null || !employerAccounts.ContainsKey(accountIdFromUrl))
         {
-            const string requiredIdClaim = ClaimTypes.NameIdentifier;
-
-            if (!context.User.HasClaim(c => c.Type.Equals(requiredIdClaim)))
+            if (!context.User.HasClaim(c => c.Type.Equals(ClaimTypes.NameIdentifier)))
+            {
                 return false;
+            }
 
-            var userClaim = context.User.Claims
-                .First(c => c.Type.Equals(requiredIdClaim));
-
-            var email = context.User.Claims.FirstOrDefault(c => c.Type.Equals(ClaimTypes.Email))?.Value;
-
-            var userId = userClaim.Value;
-
-            var result = accountsService.GetUserAccounts(userId, email).Result;
-
-            var accountsAsJson = JsonConvert.SerializeObject(result.EmployerAccounts.ToDictionary(k => k.AccountId));
-            var associatedAccountsClaim = new Claim(EmployerClaims.AccountsClaimsTypeIdentifier, accountsAsJson, JsonClaimValueTypes.Json);
-
-            var updatedEmployerAccounts = JsonConvert.DeserializeObject<Dictionary<string, EmployerUserAccountItem>>(associatedAccountsClaim.Value);
-
-            userClaim.Subject.AddClaim(associatedAccountsClaim);
+            var updatedEmployerAccounts = await accountClaimsService.GetAssociatedAccounts(forceRefresh: true);
 
             if (!updatedEmployerAccounts.ContainsKey(accountIdFromUrl))
             {

@@ -15,7 +15,6 @@ namespace SFA.DAS.Employer.Profiles.Web.UnitTests.AppStart;
 public class WhenAddingServicesToTheContainer
 {
     [TestCase(typeof(IEmployerAccountService))]
-    [TestCase(typeof(ICustomClaims))]
     public void Then_The_Dependencies_Are_Correctly_Resolved(Type toResolve)
     {
         var serviceCollection = new ServiceCollection();
@@ -52,19 +51,18 @@ public class WhenAddingServicesToTheContainer
         serviceCollection.AddDistributedMemoryCache();
         serviceCollection.AddServiceRegistration();
         serviceCollection.AddAuthenticationServices();
-        
     }
-    
+
     private static IConfigurationRoot GenerateConfiguration()
     {
         var configSource = new MemoryConfigurationSource
         {
             InitialData = new List<KeyValuePair<string, string>>
             {
-                new KeyValuePair<string, string>("EmployerProfilesWebConfiguration:BaseUrl", "https://test.com/"),
-                new KeyValuePair<string, string>("EmployerProfilesWebConfiguration:Key", "123edc"),
-                new KeyValuePair<string, string>("EnvironmentName", "test"),
-            }
+                new("EmployerProfilesWebConfiguration:BaseUrl", "https://test.com/"),
+                new("EmployerProfilesWebConfiguration:Key", "123edc"),
+                new("EnvironmentName", "test"),
+            }!
         };
 
         var provider = new MemoryConfigurationProvider(configSource);
