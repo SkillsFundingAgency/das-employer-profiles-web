@@ -17,12 +17,6 @@
         "configurationStorageConnectionString": {
             "type": "securestring"
         },
-        "loggingRedisConnectionString": {
-            "type": "securestring"
-        },
-        "loggingRedisKey": {
-            "type": "string"
-        },
         "tags": {
             "type": "object"
         },
@@ -189,14 +183,6 @@
                                 {
                                     "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
                                     "value": "[parameters('applicationInsightsConnectionString')]"
-                                },
-                                {
-                                    "name": "LoggingRedisConnectionString",
-                                    "value": "[parameters('loggingRedisConnectionString')]"
-                                },
-                                {
-                                    "name": "LoggingRedisKey",
-                                    "value": "[parameters('loggingRedisKey')]"
                                 },
                                 {
                                     "name": "Cdn:Url",
