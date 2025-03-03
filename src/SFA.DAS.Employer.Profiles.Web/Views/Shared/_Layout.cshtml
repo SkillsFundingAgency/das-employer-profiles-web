@@ -1,4 +1,3 @@
-@using Microsoft.Extensions.Configuration
 @inject IConfiguration Configuration
 @using SFA.DAS.Employer.Shared.UI.Models
 @using Microsoft.AspNetCore.Mvc.TagHelpers
@@ -8,6 +7,7 @@
     string accountId = (string)this.ViewContext.RouteData.Values["employerAccountId"] ?? "";
     ViewBag.HideHeaderBorder = true;
     var footerModel = new FooterModel { AccountId = accountId, UsePrivacyV2 = true };
+    var cookieBannerModel = new CookieBannerModel { AccountId = accountId };
 }
 <!DOCTYPE html>
 <html lang="en" class="govuk-template">
@@ -49,7 +49,7 @@
 </script>
 
 @* ReSharper disable once Mvc.PartialViewNotResolved *@
-<partial name="_CookieBanner"></partial>
+<partial name="_CookieBanner" model="@cookieBannerModel"></partial>
 
 <a href="#main-content" class="govuk-skip-link">Skip to main content</a>
 
