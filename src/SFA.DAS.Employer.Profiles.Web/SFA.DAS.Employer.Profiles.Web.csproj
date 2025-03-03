@@ -36,8 +36,4 @@
             <CopyToPublishDirectory>Never</CopyToPublishDirectory>
         </Content>
     </ItemGroup>
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Views\CookieConsent\Details.cshtml" />
-      <_ContentIncludedByDefault Remove="Views\CookieConsent\Settings.cshtml" />
-    </ItemGroup>
 </Project>
