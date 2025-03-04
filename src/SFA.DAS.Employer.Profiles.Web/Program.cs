@@ -1,3 +1,4 @@
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging.ApplicationInsights;
 using Microsoft.Extensions.Options;
@@ -51,7 +52,10 @@ builder.Services.Configure<RouteOptions>(options => { }).AddMvc(options =>
 
 builder.Services.AddDataProtection(rootConfiguration);
 
-builder.Services.AddApplicationInsightsTelemetry();
+builder.Services.AddApplicationInsightsTelemetry(new ApplicationInsightsServiceOptions
+{
+    EnableAdaptiveSampling = false
+});
 
 var app = builder.Build();
 
