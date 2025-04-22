@@ -6,19 +6,19 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.13.1" />
+        <PackageReference Include="Azure.Identity" Version="1.13.2" />
         <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.10" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.10" />
-        <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.10" />
-        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="7.7.1" />
-        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.121" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.15" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.15" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.StackExchangeRedis" Version="8.0.15" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="8.8.0" />
+        <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.141" />
         <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
         <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="17.1.113" />
         <PackageReference Include="SFA.DAS.Employer.Shared.UI" Version="17.1.131" />
         <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
-        <PackageReference Include="System.Drawing.Common" Version="8.0.10" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.7.1" />
+        <PackageReference Include="System.Drawing.Common" Version="8.0.15" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
         <PackageReference Include="System.Security.Cryptography.Pkcs" Version="8.0.1" />
         <PackageReference Include="WebEssentials.AspNetCore.CdnTagHelpers" Version="1.0.21" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.10" />
