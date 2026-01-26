@@ -112,6 +112,8 @@ public class ServiceController(
             return NotFound();
         }
 
+        ViewBag.ShowNav = false;
+
         var associatedAccounts = await accountClaimsService.GetAssociatedAccounts(forceRefresh: false);
 
         var viewModel = new AccountStubViewModel
