@@ -48,7 +48,8 @@ builder.Services.Configure<RouteOptions>(options => { }).AddMvc(options =>
     {
         options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
     }
-});
+})
+.SetDefaultNavigationSection(NavigationSection.AccountsHome);
 
 builder.Services.AddDataProtection(rootConfiguration);
 
