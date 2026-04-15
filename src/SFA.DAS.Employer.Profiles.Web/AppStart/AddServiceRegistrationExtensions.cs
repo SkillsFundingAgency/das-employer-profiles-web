@@ -6,6 +6,7 @@ using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.GovUK.Auth.Employer;
 using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClaims;
+using PolicyNames = SFA.DAS.Employer.Profiles.Web.Authentication.PolicyNames;
 
 namespace SFA.DAS.Employer.Profiles.Web.AppStart;
 
