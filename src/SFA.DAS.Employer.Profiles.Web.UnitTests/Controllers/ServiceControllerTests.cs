@@ -42,13 +42,18 @@ public class ServiceControllerTests
     [Test, MoqAutoData]
     public async Task Then_The_Stub_Auth_Is_Created_When_Not_Prod(
         ClaimsPrincipal claimsPrincipal,
-        StubAuthenticationViewModel model,
         [Frozen] Mock<IUrlHelperFactory> urlHelperFactory,
         [Frozen] Mock<IAuthenticationService> authService,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)
     {
+        var model = new StubAuthenticationViewModel
+        {
+            Email = "test@test.com",
+            ReturnUrl = "/"
+        };
+
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
         stubAuthService.Setup(x => x.GetStubSignInClaims(model)).ReturnsAsync(claimsPrincipal);
         
@@ -71,12 +76,17 @@ public class ServiceControllerTests
     
     [Test, MoqAutoData]
     public async Task Then_The_Stub_Auth_Is_Not_Created_When_Prod(
-        StubAuthenticationViewModel model,
         [Frozen] Mock<IAuthenticationService> authService,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)
     {
+        var model = new StubAuthenticationViewModel
+        {
+            Email = "test@test.com",
+            ReturnUrl = "/"
+        };
+
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("prd");
         var httpContext = new DefaultHttpContext();
         
@@ -95,7 +105,6 @@ public class ServiceControllerTests
     [Test, MoqAutoData]
     public async Task Then_The_Stub_Auth_Details_Are_Not_Returned_When_Prod(
         string returnUrl,
-        StubAuthUserDetails model,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)
@@ -112,7 +121,6 @@ public class ServiceControllerTests
         string emailClaimValue,
         string nameClaimValue,
         string returnUrl, 
-        StubAuthUserDetails model,
         EmployerUserAccountItem employerIdentifier,
         [Frozen] Mock<IAccountClaimsService> associatedAccountsService,
         [Frozen] Mock<IConfiguration> configuration,
@@ -157,7 +165,6 @@ public class ServiceControllerTests
     [Test, MoqAutoData]
     public void Then_The_Get_For_Entering_Stub_Auth_Details_Is_Returned_When_Not_Prod(
         string returnUrl, 
-        StubAuthUserDetails model,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)
@@ -174,7 +181,6 @@ public class ServiceControllerTests
     [Test, MoqAutoData]
     public void Then_The_Get_For_Entering_Stub_Auth_Details_Is_Not_Returned_When_Prod(
         string returnUrl, 
-        StubAuthUserDetails model,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IStubAuthenticationService> stubAuthService,
         [Greedy] ServiceController controller)

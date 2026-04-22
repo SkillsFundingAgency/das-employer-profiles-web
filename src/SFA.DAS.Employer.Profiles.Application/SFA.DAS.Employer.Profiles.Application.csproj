@@ -12,7 +12,7 @@
 
     <ItemGroup>
       <PackageReference Include="Azure.Identity" Version="1.20.0" />
-      <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.165" />
+      <PackageReference Include="SFA.DAS.GovUK.Auth" Version="17.1.168" />
       <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />
     </ItemGroup>
 
