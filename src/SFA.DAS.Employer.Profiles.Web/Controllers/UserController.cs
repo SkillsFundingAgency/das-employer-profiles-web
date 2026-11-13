@@ -9,6 +9,7 @@ using SFA.DAS.Employer.Profiles.Web.Authentication;
 using SFA.DAS.Employer.Profiles.Web.Extensions;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
+using SFA.DAS.Employer.Profiles.Web.Validations;
 using SFA.DAS.Employer.Shared.UI;
 using SFA.DAS.Employer.Shared.UI.Attributes;
 
@@ -58,6 +59,16 @@ public class UserController(IConfiguration configuration, IEmployerAccountServic
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
     public IActionResult AddUserDetails(AddUserDetailsModel model)
     {
+        var validator = new AddUserDetailsViewModelValidator();
+        var validationResult = validator.Validate(model);
+
+        foreach (var validationError in validationResult.Errors)
+        {
+            ModelState.AddModelError(
+                validationError.PropertyName,
+                validationError.ErrorMessage);
+        }
+
         if (!ModelState.IsValid)
         {
             return View(new AddUserDetailsModel
@@ -108,6 +119,16 @@ public class UserController(IConfiguration configuration, IEmployerAccountServic
         if (noChangeHasBeenMade)
         {
             ModelState.AddModelError(nameof(model.HasNoChange), "Make changes to user details or select 'Cancel'");
+        }
+
+        var validator = new EditUserDetailsViewModelValidator();
+        var validationResult = validator.Validate(model);
+
+        foreach (var validationError in validationResult.Errors)
+        {
+            ModelState.AddModelError(
+                validationError.PropertyName,
+                validationError.ErrorMessage);
         }
 
         if (!ModelState.IsValid)
