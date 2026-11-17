@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using SFA.DAS.Employer.Profiles.Web.Models;
-using SFA.DAS.InputValidation.Fluent.Extensions;
 
 namespace SFA.DAS.Employer.Profiles.Web.Validations;
 
