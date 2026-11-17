@@ -12,15 +12,19 @@ public sealed class EditUserDetailsViewModelValidator : AbstractValidator<EditUs
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage("Enter your first name")
-            .ValidFreeTextCharacters()
-            .WithMessage("First name contains invalid characters");
+            .Must(name => name == null || name.Any(char.IsLetter))
+            .WithMessage("Enter a valid first name")
+            .Matches(@"^[\p{L}\p{M}][\p{L}\p{M}\s'\-]*$")
+            .WithMessage("First name must only include letters, spaces, hyphens and apostrophes");
 
         RuleFor(x => x.LastName)
             .Cascade(CascadeMode.Stop)
             .NotEmpty()
             .WithMessage("Enter your last name")
-            .ValidFreeTextCharacters()
-            .WithMessage("Last name contains invalid characters");
+            .Must(name => name == null || name.Any(char.IsLetter))
+            .WithMessage("Enter a valid last name")
+            .Matches(@"^[\p{L}\p{M}][\p{L}\p{M}\s'\-]*$")
+            .WithMessage("Last name must only include letters, spaces, hyphens and apostrophes");
     }
 }
 
