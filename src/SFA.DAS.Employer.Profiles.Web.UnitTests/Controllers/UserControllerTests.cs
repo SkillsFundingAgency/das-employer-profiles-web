@@ -307,11 +307,7 @@ public class UserControllerTests
 
         editUserDetailsValidator
             .Setup(x => x.Validate(It.IsAny<EditUserDetailsModel>()))
-            .Returns(new ValidationResult());
-
-        editUserDetailsValidator
-            .Setup(x => x.Validate(It.IsAny<EditUserDetailsModel>()))
-            .Returns(new ValidationResult());
+            .Returns(new ValidationResult());        
 
         var httpContext = new DefaultHttpContext
         {

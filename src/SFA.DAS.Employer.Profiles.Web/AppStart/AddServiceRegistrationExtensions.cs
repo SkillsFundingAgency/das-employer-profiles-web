@@ -17,7 +17,6 @@ public static class AddServiceRegistrationExtension
     public static void AddServiceRegistration(this IServiceCollection services)
     {
         services.AddValidatorsFromAssemblyContaining<AddUserDetailsViewModelValidator>();
-        services.AddValidatorsFromAssemblyContaining<EditUserDetailsViewModelValidator>();
 
         services.AddTransient<IEmployerAccountService, EmployerAccountService>();
         services.AddTransient<IGovAuthEmployerAccountService, EmployerAccountService>();

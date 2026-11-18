@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace SFA.DAS.Employer.Profiles.Web.Models
+﻿namespace SFA.DAS.Employer.Profiles.Web.Models
 {
     public class EditUserDetailsModel : ViewModelBase
     {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
+        public string? FirstName { get; set; } = string.Empty;
+        public string? LastName { get; set; } = string.Empty;
 
         public string OriginalFirstName { get; set; } = string.Empty;
         public string OriginalLastName { get; set; } = string.Empty;
