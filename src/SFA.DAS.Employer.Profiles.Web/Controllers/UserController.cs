@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FluentValidation;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
@@ -14,7 +15,10 @@ using SFA.DAS.Employer.Shared.UI.Attributes;
 
 namespace SFA.DAS.Employer.Profiles.Web.Controllers;
 
-public class UserController(IConfiguration configuration, IEmployerAccountService accountsService)
+public class UserController(IConfiguration configuration,
+    IEmployerAccountService accountsService,
+    IValidator<AddUserDetailsModel> addUserDetailsValidator,
+    IValidator<EditUserDetailsModel> editUserDetailsValidator)
     : Controller
 {
     [SetNavigationSection(NavigationSection.AccountsHome)]
@@ -58,6 +62,8 @@ public class UserController(IConfiguration configuration, IEmployerAccountServic
     [Route("[controller]/add-user-details", Name = RouteNames.AddUserDetails)]
     public IActionResult AddUserDetails(AddUserDetailsModel model)
     {
+        ValidateModel(model, addUserDetailsValidator);
+
         if (!ModelState.IsValid)
         {
             return View(new AddUserDetailsModel
@@ -109,6 +115,8 @@ public class UserController(IConfiguration configuration, IEmployerAccountServic
         {
             ModelState.AddModelError(nameof(model.HasNoChange), "Make changes to user details or select 'Cancel'");
         }
+
+        ValidateModel(model, editUserDetailsValidator);
 
         if (!ModelState.IsValid)
         {
@@ -206,5 +214,17 @@ public class UserController(IConfiguration configuration, IEmployerAccountServic
             AccountSaveAndComeBackLaterUrl = UrlRedirectionExtensions.GetProgressSavedUrl(configuration["ResourceEnvironmentName"]),
             IsEdit = isEdit
         });
+    }
+
+    private void ValidateModel<T>(T model, IValidator<T> validator)
+    {
+        var validationResult = validator.Validate(model);
+
+        foreach (var validationError in validationResult.Errors)
+        {
+            ModelState.AddModelError(
+                validationError.PropertyName,
+                validationError.ErrorMessage);
+        }
     }
 }

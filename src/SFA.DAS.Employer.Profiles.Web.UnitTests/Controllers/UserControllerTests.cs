@@ -1,11 +1,15 @@
 using System.Security.Claims;
 using AutoFixture.NUnit3;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
+using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Configuration;
 using Moq;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
@@ -13,6 +17,7 @@ using SFA.DAS.Employer.Profiles.Domain.Models;
 using SFA.DAS.Employer.Profiles.Web.Controllers;
 using SFA.DAS.Employer.Profiles.Web.Infrastructure;
 using SFA.DAS.Employer.Profiles.Web.Models;
+using SFA.DAS.Employer.Profiles.Web.Validations;
 using SFA.DAS.Testing.AutoFixture;
 
 namespace SFA.DAS.Employer.Profiles.Web.UnitTests.Controllers;
@@ -132,21 +137,28 @@ public class UserControllerTests
         string emailClaimValue,
         string nameClaimValue,
         string userId,
-        string firstName,
-        string lastName,
         [Frozen] Mock<IUrlHelperFactory> urlHelperFactory,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IAuthenticationService> authenticationService,
         [Frozen] Mock<IServiceProvider> serviceProviderMock,
+        [Frozen] Mock<IValidator<AddUserDetailsModel>> addUserDetailsValidator,
         [NoAutoProperties] UserController controller)
     {
         // arrange
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
         var model = new AddUserDetailsModel
         {
-            FirstName = firstName,
-            LastName = lastName,
+            FirstName = "John",
+            LastName = "Smith"
         };
+
+        var tempDataFactoryMock = new Mock<ITempDataDictionaryFactory>();
+        var tempDataMock = new Mock<ITempDataDictionary>();
+
+        tempDataFactoryMock
+            .Setup(x => x.GetTempData(It.IsAny<HttpContext>()))
+            .Returns(tempDataMock.Object);
+
         serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
             .Returns(authenticationService.Object);
@@ -154,6 +166,14 @@ public class UserControllerTests
         serviceProviderMock
             .Setup(x => x.GetService(typeof(IUrlHelperFactory)))
             .Returns(urlHelperFactory.Object);
+
+        serviceProviderMock
+            .Setup(x => x.GetService(typeof(ITempDataDictionaryFactory)))
+            .Returns(tempDataFactoryMock.Object);
+
+        addUserDetailsValidator
+            .Setup(x => x.Validate(It.IsAny<AddUserDetailsModel>()))
+            .Returns(new ValidationResult());
 
         var httpContext = new DefaultHttpContext
         {
@@ -174,7 +194,8 @@ public class UserControllerTests
         var actual = controller.AddUserDetails(model) as RedirectToRouteResult;
 
         // assert
-        actual.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
+        actual.Should().NotBeNull();
+        actual!.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
     }
 
     [Test, MoqAutoData]
@@ -249,23 +270,29 @@ public class UserControllerTests
         string emailClaimValue,
         string nameClaimValue,
         string userId,
-        string firstName,
-        string lastName,
         [Frozen] Mock<IUrlHelperFactory> urlHelperFactory,
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IAuthenticationService> authenticationService,
         [Frozen] Mock<IServiceProvider> serviceProviderMock,
+        [Frozen] Mock<IValidator<EditUserDetailsModel>> editUserDetailsValidator,
         [NoAutoProperties] UserController controller)
     {
         // arrange
         configuration.Setup(x => x["ResourceEnvironmentName"]).Returns("test");
         var model = new EditUserDetailsModel
         {
-            FirstName = firstName,
-            LastName = lastName,
+            FirstName = "firstName",
+            LastName = "lastName",
             OriginalFirstName = "originalFirst",
             OriginalLastName = "originalLast"
         };
+        var tempDataFactoryMock = new Mock<ITempDataDictionaryFactory>();
+        var tempDataMock = new Mock<ITempDataDictionary>();
+
+        tempDataFactoryMock
+            .Setup(x => x.GetTempData(It.IsAny<HttpContext>()))
+            .Returns(tempDataMock.Object);
+
         serviceProviderMock
             .Setup(_ => _.GetService(typeof(IAuthenticationService)))
             .Returns(authenticationService.Object);
@@ -273,6 +300,14 @@ public class UserControllerTests
         serviceProviderMock
             .Setup(x => x.GetService(typeof(IUrlHelperFactory)))
             .Returns(urlHelperFactory.Object);
+
+        serviceProviderMock
+            .Setup(x => x.GetService(typeof(ITempDataDictionaryFactory)))
+            .Returns(tempDataFactoryMock.Object);
+
+        editUserDetailsValidator
+            .Setup(x => x.Validate(It.IsAny<EditUserDetailsModel>()))
+            .Returns(new ValidationResult());        
 
         var httpContext = new DefaultHttpContext
         {
@@ -293,7 +328,8 @@ public class UserControllerTests
         var actual = controller.EditUserDetails(model) as RedirectToRouteResult;
 
         // assert
-        actual.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
+        actual.Should().NotBeNull();
+        actual!.RouteName.Should().Be(RouteNames.ConfirmUserDetails);
     }
 
     [Test, MoqAutoData]
@@ -409,5 +445,291 @@ public class UserControllerTests
         actualModel.IsEdit.Should().Be(isEdit);
         actualModel.AccountSaveAndComeBackLaterUrl.Should().Be("https://accounts.manage-apprenticeships.service.gov.uk/accounts/create/progress-saved");
         actualModel.AccountReturnUrl.Should().Be(expectedReturnUrl);
+    }
+
+    [TestCase("John")]
+    [TestCase("John Smith")]
+    [TestCase("Anne-Marie")]
+    [TestCase("O'Connor")]
+    [TestCase("José")]
+    [TestCase("François")]
+    [TestCase("Mary Jane")]
+    [TestCase("Jean-Pierre")]
+    [TestCase("D'Arcy")]
+    [TestCase("José María")]
+    public void Validate_AddUserDetails_FirstName_ShouldNotHaveValidationError_When_FirstNameContainsValidCharacters(string firstName)
+    {       
+        var model = new AddUserDetailsModel
+        {
+            FirstName = firstName
+        };
+
+        var validator = new AddUserDetailsViewModelValidator();
+        
+        var result = validator.TestValidate(model);
+        
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
+    }
+
+    [TestCase("John")]
+    [TestCase("John Smith")]
+    [TestCase("Anne-Marie")]
+    [TestCase("O'Connor")]
+    [TestCase("José")]
+    [TestCase("François")]
+    [TestCase("Mary Jane")]
+    [TestCase("Jean-Pierre")]
+    [TestCase("D'Arcy")]
+    [TestCase("José María")]
+    public void Validate_EditUserDetails_FirstName_ShouldNotHaveValidationError_When_FirstNameContainsValidCharacters(string firstName)
+    {
+        var model = new EditUserDetailsModel
+        {
+            FirstName = firstName
+        };
+
+        var validator = new EditUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.FirstName);
+    }
+
+    [TestCase("John123")]
+    [TestCase("John@123")]
+    [TestCase("John#123")]
+    [TestCase("John!")]
+    [TestCase("John$")]
+    [TestCase("John%")]
+    [TestCase("John^")]
+    [TestCase("John&")]
+    [TestCase("John*")]
+    [TestCase("John_")]
+    [TestCase("John+")]
+    [TestCase("John=")]
+    [TestCase("John/")]
+    [TestCase("John\\")]
+    [TestCase("John.")]
+    [TestCase("John,")]
+    [TestCase("John;")]
+    [TestCase("John:")]
+    [TestCase("John?")]
+    [TestCase("John<")]
+    [TestCase("John>")]
+    [TestCase("John(")]
+    [TestCase("John)")]
+    public void Validate_AddUserDetails_FirstName_ShouldHaveValidationError_When_SeparatorsAreInvalid(string firstName)
+    {        
+        var model = new AddUserDetailsModel
+        {
+            FirstName = firstName
+        };
+
+        var validator = new AddUserDetailsViewModelValidator();
+       
+        var result = validator.TestValidate(model);
+        
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
+            .WithErrorMessage("First name must only include letters, spaces, hyphens and apostrophes");
+    }
+
+    [TestCase("John123")]
+    [TestCase("John@123")]
+    [TestCase("John#123")]
+    [TestCase("John!")]
+    [TestCase("John$")]
+    [TestCase("John%")]
+    [TestCase("John^")]
+    [TestCase("John&")]
+    [TestCase("John*")]
+    [TestCase("John_")]
+    [TestCase("John+")]
+    [TestCase("John=")]
+    [TestCase("John/")]
+    [TestCase("John\\")]
+    [TestCase("John.")]
+    [TestCase("John,")]
+    [TestCase("John;")]
+    [TestCase("John:")]
+    [TestCase("John?")]
+    [TestCase("John<")]
+    [TestCase("John>")]
+    [TestCase("John(")]
+    [TestCase("John)")]
+    public void Validate_EditUserDetails_FirstName_ShouldHaveValidationError_When_SeparatorsAreInvalid(string firstName)
+    {
+        var model = new EditUserDetailsModel
+        {
+            FirstName = firstName
+        };
+
+        var validator = new EditUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
+            .WithErrorMessage("First name must only include letters, spaces, hyphens and apostrophes");
+    }
+
+    [TestCase("O'Connor")]
+    [TestCase("José")]
+    [TestCase("François")]
+    [TestCase("Mary Jane")]
+    [TestCase("Jean-Pierre")]
+    [TestCase("D'Arcy")]
+    [TestCase("José María")]
+    public void Validate_AddUserDetails_LastName_ShouldNotHaveValidationError_When_LastNameContainsValidCharacters(string lastName)
+    {
+        var model = new AddUserDetailsModel
+        {
+            LastName = lastName
+        };
+
+        var validator = new AddUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.LastName);
+    }
+
+    [TestCase("O'Connor")]
+    [TestCase("José")]
+    [TestCase("François")]
+    [TestCase("Mary Jane")]
+    [TestCase("Jean-Pierre")]
+    [TestCase("D'Arcy")]
+    [TestCase("José María")]
+    public void Validate_EditUserDetails_LastName_ShouldNotHaveValidationError_When_LastNameContainsValidCharacters(string lastName)
+    {
+        var model = new EditUserDetailsModel
+        {
+            LastName = lastName
+        };
+
+        var validator = new EditUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldNotHaveValidationErrorFor(x => x.LastName);
+    }
+
+    [TestCase("John123")]
+    [TestCase("John@123")]
+    [TestCase("John#123")]
+    [TestCase("John!")]
+    [TestCase("John$")]
+    [TestCase("John%")]
+    [TestCase("John^")]
+    [TestCase("John&")]
+    [TestCase("John*")]
+    [TestCase("John_")]
+    [TestCase("John+")]
+    [TestCase("John=")]
+    [TestCase("John/")]
+    [TestCase("John\\")]
+    [TestCase("John.")]
+    [TestCase("John,")]
+    [TestCase("John;")]
+    [TestCase("John:")]
+    [TestCase("John?")]
+    [TestCase("John<")]
+    [TestCase("John>")]
+    [TestCase("John(")]
+    [TestCase("John)")]
+    public void Validate_AddUserDetails_LastName_ShouldHaveValidationError_When_LastNameContainsInvalidCharacters(string lastName)
+    {
+        var model = new AddUserDetailsModel
+        {
+            LastName = lastName
+        };
+
+        var validator = new AddUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.LastName)
+            .WithErrorMessage("Last name must only include letters, spaces, hyphens and apostrophes");
+    }
+
+    [TestCase("John123")]
+    [TestCase("John@123")]
+    [TestCase("John#123")]
+    [TestCase("John!")]
+    [TestCase("John$")]
+    [TestCase("John%")]
+    [TestCase("John^")]
+    [TestCase("John&")]
+    [TestCase("John*")]
+    [TestCase("John_")]
+    [TestCase("John+")]
+    [TestCase("John=")]
+    [TestCase("John/")]
+    [TestCase("John\\")]
+    [TestCase("John.")]
+    [TestCase("John,")]
+    [TestCase("John;")]
+    [TestCase("John:")]
+    [TestCase("John?")]
+    [TestCase("John<")]
+    [TestCase("John>")]
+    [TestCase("John(")]
+    [TestCase("John)")]
+    public void Validate_EditUserDetails_LastName_ShouldHaveValidationError_When_LastNameContainsInvalidCharacters(string lastName)
+    {
+        var model = new EditUserDetailsModel
+        {
+            LastName = lastName
+        };
+
+        var validator = new EditUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.LastName)
+            .WithErrorMessage("Last name must only include letters, spaces, hyphens and apostrophes");
+    }
+
+    [TestCase(null, null)]
+    [TestCase("", "")]
+    [TestCase(" ", " ")]
+    public void Validate_AddUserDetails_ShouldHaveValidationErrors_When_FirstNameAndLastNameAreEmpty(string firstName, string lastName)
+    {
+        var model = new AddUserDetailsModel
+        {
+            FirstName = firstName,
+            LastName = lastName
+        };
+
+        var validator = new AddUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
+            .WithErrorMessage("Enter your first name");
+
+        result.ShouldHaveValidationErrorFor(x => x.LastName)
+            .WithErrorMessage("Enter your last name");
+    }
+
+    [TestCase(null, null)]
+    [TestCase("", "")]
+    [TestCase(" ", " ")]
+    public void Validate_EditUserDetails_ShouldHaveValidationErrors_When_FirstNameAndLastNameAreEmpty(string firstName, string lastName)
+    {
+        var model = new EditUserDetailsModel
+        {
+            FirstName = firstName,
+            LastName = lastName
+        };
+
+        var validator = new EditUserDetailsViewModelValidator();
+
+        var result = validator.TestValidate(model);
+
+        result.ShouldHaveValidationErrorFor(x => x.FirstName)
+            .WithErrorMessage("Enter your first name");
+
+        result.ShouldHaveValidationErrorFor(x => x.LastName)
+            .WithErrorMessage("Enter your last name");
     }
 }
