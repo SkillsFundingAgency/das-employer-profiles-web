@@ -1,6 +1,8 @@
 using System.Security.Claims;
 using AutoFixture.NUnit3;
 using FluentAssertions;
+using FluentValidation;
+using FluentValidation.Results;
 using FluentValidation.TestHelper;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -139,6 +141,7 @@ public class UserControllerTests
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IAuthenticationService> authenticationService,
         [Frozen] Mock<IServiceProvider> serviceProviderMock,
+        [Frozen] Mock<IValidator<AddUserDetailsModel>> addUserDetailsValidator,
         [NoAutoProperties] UserController controller)
     {
         // arrange
@@ -167,6 +170,10 @@ public class UserControllerTests
         serviceProviderMock
             .Setup(x => x.GetService(typeof(ITempDataDictionaryFactory)))
             .Returns(tempDataFactoryMock.Object);
+
+        addUserDetailsValidator
+            .Setup(x => x.Validate(It.IsAny<AddUserDetailsModel>()))
+            .Returns(new ValidationResult());
 
         var httpContext = new DefaultHttpContext
         {
@@ -267,6 +274,7 @@ public class UserControllerTests
         [Frozen] Mock<IConfiguration> configuration,
         [Frozen] Mock<IAuthenticationService> authenticationService,
         [Frozen] Mock<IServiceProvider> serviceProviderMock,
+        [Frozen] Mock<IValidator<EditUserDetailsModel>> editUserDetailsValidator,
         [NoAutoProperties] UserController controller)
     {
         // arrange
@@ -296,6 +304,14 @@ public class UserControllerTests
         serviceProviderMock
             .Setup(x => x.GetService(typeof(ITempDataDictionaryFactory)))
             .Returns(tempDataFactoryMock.Object);
+
+        editUserDetailsValidator
+            .Setup(x => x.Validate(It.IsAny<EditUserDetailsModel>()))
+            .Returns(new ValidationResult());
+
+        editUserDetailsValidator
+            .Setup(x => x.Validate(It.IsAny<EditUserDetailsModel>()))
+            .Returns(new ValidationResult());
 
         var httpContext = new DefaultHttpContext
         {

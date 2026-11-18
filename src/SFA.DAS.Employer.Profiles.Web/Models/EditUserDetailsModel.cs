@@ -4,13 +4,7 @@ namespace SFA.DAS.Employer.Profiles.Web.Models
 {
     public class EditUserDetailsModel : ViewModelBase
     {
-
-        [Required(ErrorMessage = "Enter your first name")]
-        [MinLength(1)]
         public string FirstName { get; set; } = string.Empty;
-
-        [Required(ErrorMessage = "Enter your last name")]
-        [MinLength(1)]
         public string LastName { get; set; } = string.Empty;
 
         public string OriginalFirstName { get; set; } = string.Empty;

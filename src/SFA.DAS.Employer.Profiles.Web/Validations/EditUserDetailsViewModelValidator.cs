@@ -8,11 +8,8 @@ public sealed class EditUserDetailsViewModelValidator : AbstractValidator<EditUs
 {
     public EditUserDetailsViewModelValidator()
     {
-        NameValidationExtensions.AddNameRules(
-            this, x => x.FirstName, "First name");
-
-        NameValidationExtensions.AddNameRules(
-            this, x => x.LastName, "Last name");
+        RuleFor(x => x.FirstName).ValidName("First name");
+        RuleFor(x => x.LastName).ValidName("Last name");
     }
 }
 

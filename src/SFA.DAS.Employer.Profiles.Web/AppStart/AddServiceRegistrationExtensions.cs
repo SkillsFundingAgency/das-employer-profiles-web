@@ -1,8 +1,10 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using SFA.DAS.Employer.Profiles.Application.EmployerAccount;
 using SFA.DAS.Employer.Profiles.Domain.OuterApi;
 using SFA.DAS.Employer.Profiles.Infrastructure.Api;
 using SFA.DAS.Employer.Profiles.Web.Authentication;
+using SFA.DAS.Employer.Profiles.Web.Validations;
 using SFA.DAS.GovUK.Auth.Authentication;
 using SFA.DAS.GovUK.Auth.Employer;
 using EmployerClaims = SFA.DAS.Employer.Profiles.Web.Infrastructure.EmployerClaims;
@@ -14,6 +16,9 @@ public static class AddServiceRegistrationExtension
 {
     public static void AddServiceRegistration(this IServiceCollection services)
     {
+        services.AddValidatorsFromAssemblyContaining<AddUserDetailsViewModelValidator>();
+        services.AddValidatorsFromAssemblyContaining<EditUserDetailsViewModelValidator>();
+
         services.AddTransient<IEmployerAccountService, EmployerAccountService>();
         services.AddTransient<IGovAuthEmployerAccountService, EmployerAccountService>();
         services.AddTransient<IAccountClaimsService, AccountClaimsService>();
